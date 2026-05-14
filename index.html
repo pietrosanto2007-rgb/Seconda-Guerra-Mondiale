@@ -1,0 +1,3652 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+    <title>SGM — Studio Interattivo</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0e0c1a;
+            --bg2: #14112a;
+            --bg3: #1c1933;
+            --card: #201d38;
+            --card2: #2a2748;
+            --border: rgba(212, 175, 55, .18);
+            --border2: rgba(255, 255, 255, .07);
+            --gold: #d4af37;
+            --gold2: #e8c84a;
+            --gold3: rgba(212, 175, 55, .13);
+            --cream: #f0e6c8;
+            --text: #ddd4c0;
+            --muted: #8a7f9a;
+            --dim: #5a5270;
+            --red: #e05252;
+            --green: #4ade80;
+            --blue: #60a5fa;
+            --orange: #fb923c;
+            --purple: #a78bfa;
+            --teal: #2dd4bf;
+            --pink: #f472b6;
+            --yellow: #facc15;
+            --font-d: 'Playfair Display', Georgia, serif;
+            --font-b: 'DM Sans', system-ui, sans-serif;
+            --r: 12px;
+            --rl: 18px;
+            --nav: 68px;
+            --sh: 0 4px 32px rgba(0, 0, 0, .55);
+            --shg: 0 0 40px rgba(212, 175, 55, .14);
+            --mob-bar: 56px;
+            --mob-nav: 62px;
+        }
+
+        [data-theme=light] {
+            --bg: #f3ede0;
+            --bg2: #ebe3d0;
+            --bg3: #e0d8c5;
+            --card: #faf5ea;
+            --card2: #f0e8d5;
+            --border: rgba(160, 120, 20, .22);
+            --border2: rgba(0, 0, 0, .07);
+            --gold: #a0780a;
+            --gold2: #c49a12;
+            --gold3: rgba(160, 120, 20, .1);
+            --cream: #1e160a;
+            --text: #2c2012;
+            --muted: #7a6a50;
+            --dim: #b0a080;
+            --sh: 0 4px 20px rgba(0, 0, 0, .12);
+            --shg: 0 0 30px rgba(160, 120, 20, .18);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent
+        }
+
+        body {
+            font-family: var(--font-b);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gold)
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--nav);
+            background: var(--bg2);
+            border-right: 1px solid var(--border2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 14px 0 10px;
+            z-index: 200;
+            gap: 2px;
+            transition: transform .3s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        .sidebar-brand {
+            font-family: var(--font-d);
+            font-size: 10px;
+            color: var(--gold);
+            letter-spacing: 3px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg)
+        }
+
+        .ni {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all .22s ease;
+            color: var(--dim);
+            font-size: 18px;
+            border: none;
+            background: transparent;
+            position: relative;
+            flex-shrink: 0
+        }
+
+        .ni:hover {
+            background: var(--card);
+            color: var(--gold);
+            transform: scale(1.06)
+        }
+
+        .ni.active {
+            background: var(--gold);
+            color: var(--bg);
+            box-shadow: 0 0 18px rgba(212, 175, 55, .4)
+        }
+
+        .ni .tip {
+            position: absolute;
+            left: calc(100% + 10px);
+            background: var(--card2);
+            color: var(--text);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .18s;
+            border: 1px solid var(--border);
+            box-shadow: var(--sh);
+            z-index: 300
+        }
+
+        .ni:hover .tip {
+            opacity: 1
+        }
+
+        .sidebar-spacer {
+            flex: 1
+        }
+
+        .sidebar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: center
+        }
+
+        .sab {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--dim);
+            font-size: 17px;
+            border: none;
+            background: transparent;
+            transition: all .22s ease
+        }
+
+        .sab:hover {
+            color: var(--gold);
+            background: var(--card)
+        }
+
+        .main {
+            margin-left: var(--nav);
+            flex: 1;
+            min-width: 0
+        }
+
+        .sec {
+            display: none;
+            min-height: 100vh;
+            padding: 44px 48px;
+            animation: none
+        }
+
+        .sec.on {
+            display: block;
+            animation: fadeUp .38s ease
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .mob-topbar {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--mob-bar);
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border2);
+            align-items: center;
+            padding: 0 16px;
+            z-index: 300;
+            gap: 12px
+        }
+
+        .mob-brand {
+            font-family: var(--font-d);
+            font-size: 13px;
+            color: var(--gold);
+            font-weight: 700;
+            letter-spacing: 2px;
+            flex: 1
+        }
+
+        .mob-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 18px;
+            border: none;
+            background: transparent;
+            transition: all .2s
+        }
+
+        .mob-icon-btn:hover {
+            color: var(--gold)
+        }
+
+        .mob-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .7);
+            z-index: 400;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px)
+        }
+
+        .mob-overlay.show {
+            display: block
+        }
+
+        .mob-menu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: min(300px, 85vw);
+            background: var(--bg2);
+            z-index: 500;
+            transform: translateX(100%);
+            transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 0 0 24px;
+            overflow-y: auto
+        }
+
+        .mob-menu.show {
+            transform: translateX(0)
+        }
+
+        .mob-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border2)
+        }
+
+        .mob-menu-title {
+            font-family: var(--font-d);
+            font-size: 15px;
+            color: var(--gold);
+            font-weight: 700
+        }
+
+        .mob-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--dim);
+            font-size: 16px;
+            border: none;
+            background: transparent
+        }
+
+        .mob-nav-list {
+            display: flex;
+            flex-direction: column;
+            padding: 8px 12px;
+            gap: 2px
+        }
+
+        .mob-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all .2s;
+            font-size: 14px;
+            color: var(--text);
+            border: none;
+            background: transparent;
+            font-family: var(--font-b);
+            text-align: left;
+            width: 100%
+        }
+
+        .mob-nav-item:hover {
+            background: var(--card);
+            color: var(--gold)
+        }
+
+        .mob-nav-item.active {
+            background: var(--gold3);
+            color: var(--gold)
+        }
+
+        .mob-nav-item .mni-ico {
+            font-size: 18px;
+            width: 24px;
+            text-align: center
+        }
+
+        .mob-nav-item .mni-lbl {
+            font-weight: 500
+        }
+
+        .mob-bottom {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--mob-nav);
+            background: var(--bg2);
+            border-top: 1px solid var(--border2);
+            z-index: 200;
+            padding-bottom: env(safe-area-inset-bottom);
+            grid-template-columns: repeat(5, 1fr)
+        }
+
+        .mbn-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--dim);
+            transition: all .2s;
+            padding: 6px 0;
+            font-family: var(--font-b)
+        }
+
+        .mbn-item .mbn-ico {
+            font-size: 20px;
+            line-height: 1;
+            transition: transform .2s
+        }
+
+        .mbn-item .mbn-lbl {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: .5px;
+            text-transform: uppercase
+        }
+
+        .mbn-item.active {
+            color: var(--gold)
+        }
+
+        .mbn-item.active .mbn-ico {
+            transform: scale(1.15)
+        }
+
+        .sh {
+            margin-bottom: 32px
+        }
+
+        .sh-tag {
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 6px
+        }
+
+        .sh-title {
+            font-family: var(--font-d);
+            font-size: clamp(22px, 4vw, 44px);
+            font-weight: 700;
+            color: var(--cream);
+            line-height: 1.1
+        }
+
+        .sh-sub {
+            color: var(--muted);
+            margin-top: 7px;
+            font-size: 13px
+        }
+
+        .btn {
+            padding: 11px 22px;
+            border-radius: 100px;
+            border: none;
+            font-family: var(--font-b);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .22s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            touch-action: manipulation
+        }
+
+        .btn-p {
+            background: var(--gold);
+            color: var(--bg)
+        }
+
+        .btn-p:hover {
+            background: var(--gold2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 18px rgba(212, 175, 55, .35)
+        }
+
+        .btn-s {
+            background: var(--card2);
+            color: var(--text);
+            border: 1px solid var(--border2)
+        }
+
+        .btn-s:hover {
+            border-color: var(--gold);
+            color: var(--gold)
+        }
+
+        .btn-g {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border2)
+        }
+
+        .btn-g:hover {
+            color: var(--gold);
+            border-color: var(--gold)
+        }
+
+        .btn-r {
+            background: rgba(224, 82, 82, .15);
+            color: var(--red);
+            border: 1px solid rgba(224, 82, 82, .3)
+        }
+
+        .btn-r:hover {
+            background: rgba(224, 82, 82, .25)
+        }
+
+        .fb {
+            padding: 7px 14px;
+            border-radius: 100px;
+            border: 1px solid var(--border2);
+            background: transparent;
+            color: var(--muted);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all .22s;
+            font-family: var(--font-b);
+            touch-action: manipulation
+        }
+
+        .fb:hover {
+            border-color: var(--gold);
+            color: var(--gold)
+        }
+
+        .fb.on {
+            background: var(--gold);
+            color: var(--bg);
+            border-color: var(--gold);
+            font-weight: 600
+        }
+
+        .fb.diff-f.on {
+            background: var(--green);
+            border-color: var(--green);
+            color: #000
+        }
+
+        .fb.diff-m.on {
+            background: var(--orange);
+            border-color: var(--orange);
+            color: #000
+        }
+
+        .fb.diff-d.on {
+            background: var(--red);
+            border-color: var(--red)
+        }
+
+        .flt-row {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            align-items: center
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--rl)
+        }
+
+        .dash-hero {
+            text-align: center;
+            padding: 52px 24px 36px;
+            max-width: 860px;
+            margin: 0 auto;
+            position: relative
+        }
+
+        .hero-bg {
+            font-size: 120px;
+            font-family: var(--font-d);
+            font-weight: 900;
+            color: var(--gold);
+            opacity: .04;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 10px;
+            white-space: nowrap;
+            pointer-events: none;
+            line-height: 1;
+            user-select: none
+        }
+
+        .hero-in {
+            position: relative;
+            z-index: 1
+        }
+
+        .hero-pill {
+            display: inline-block;
+            background: var(--gold3);
+            color: var(--gold);
+            padding: 5px 18px;
+            border-radius: 100px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 22px;
+            border: 1px solid rgba(212, 175, 55, .3)
+        }
+
+        .hero-h {
+            font-family: var(--font-d);
+            font-size: clamp(28px, 5vw, 58px);
+            font-weight: 900;
+            color: var(--cream);
+            line-height: 1.1;
+            margin-bottom: 12px
+        }
+
+        .hero-p {
+            color: var(--muted);
+            font-size: 15px;
+            max-width: 480px;
+            margin: 0 auto 36px
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 32px;
+            justify-content: center;
+            margin-bottom: 48px;
+            flex-wrap: wrap
+        }
+
+        .stat-item {
+            text-align: center
+        }
+
+        .stat-n {
+            font-family: var(--font-d);
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--gold);
+            display: block
+        }
+
+        .stat-l {
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px
+        }
+
+        .dgrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 0 64px
+        }
+
+        .dc {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--rl);
+            padding: 24px;
+            cursor: pointer;
+            transition: all .28s ease;
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation
+        }
+
+        .dc::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--ac, var(--gold))
+        }
+
+        .dc:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shg);
+            border-color: rgba(212, 175, 55, .3)
+        }
+
+        .dc-ico {
+            font-size: 26px;
+            margin-bottom: 10px;
+            display: block
+        }
+
+        .dc-title {
+            font-family: var(--font-d);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--cream);
+            margin-bottom: 6px
+        }
+
+        .dc-desc {
+            font-size: 11.5px;
+            color: var(--muted);
+            line-height: 1.55
+        }
+
+        .dc-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 100px;
+            background: var(--ac, var(--gold));
+            color: var(--bg)
+        }
+
+        .xp-bar-wrap {
+            max-width: 480px;
+            margin: 0 auto 32px;
+            padding: 18px 24px;
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--rl);
+            text-align: left
+        }
+
+        .xp-level {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px
+        }
+
+        .xp-lvl-name {
+            font-family: var(--font-d);
+            font-size: 16px;
+            color: var(--cream);
+            font-weight: 700
+        }
+
+        .xp-pts {
+            font-size: 12px;
+            color: var(--gold);
+            font-weight: 600
+        }
+
+        .xp-track {
+            height: 7px;
+            background: var(--bg3);
+            border-radius: 100px;
+            overflow: hidden;
+            margin-bottom: 6px
+        }
+
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--gold), var(--gold2));
+            border-radius: 100px;
+            transition: width .8s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        .xp-sub {
+            font-size: 11px;
+            color: var(--dim)
+        }
+
+        .daily-widget {
+            max-width: 480px;
+            margin: 0 auto 32px;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, var(--card) 0%, rgba(212, 175, 55, .07) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--rl);
+            cursor: pointer;
+            transition: all .25s;
+            text-align: left
+        }
+
+        .daily-widget:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shg)
+        }
+
+        .daily-tag {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 8px
+        }
+
+        .daily-q {
+            font-family: var(--font-d);
+            font-size: 15px;
+            color: var(--cream);
+            line-height: 1.4;
+            margin-bottom: 12px
+        }
+
+        .tl-wrap {
+            position: relative;
+            max-width: 920px;
+            margin: 0 auto
+        }
+
+        .tl-line {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(212, 175, 55, .5) 5%, rgba(212, 175, 55, .25) 95%, transparent)
+        }
+
+        .ev {
+            display: flex;
+            margin-bottom: 22px;
+            position: relative;
+            align-items: flex-start;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity .45s ease, transform .45s ease
+        }
+
+        .ev.vis {
+            opacity: 1;
+            transform: none
+        }
+
+        .ev:nth-child(even) {
+            flex-direction: row-reverse
+        }
+
+        .ev-card {
+            width: calc(50% - 34px);
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--r);
+            padding: 16px 18px;
+            cursor: pointer;
+            transition: all .28s ease;
+            position: relative
+        }
+
+        .ev-card:hover {
+            border-color: rgba(212, 175, 55, .45);
+            transform: scale(1.013);
+            box-shadow: var(--shg)
+        }
+
+        .ev-card.xp .ev-desc {
+            display: block
+        }
+
+        .ev-card.xp .ev-toggle::after {
+            content: '▲'
+        }
+
+        .ev-toggle {
+            position: absolute;
+            bottom: 8px;
+            right: 10px;
+            font-size: 9px;
+            color: var(--dim)
+        }
+
+        .ev-toggle::after {
+            content: '▼'
+        }
+
+        .ev-dot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 18px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            z-index: 2;
+            border: 3px solid var(--bg);
+            box-shadow: 0 0 0 3px var(--pc, var(--gold));
+            transition: box-shadow .3s
+        }
+
+        .ev:hover .ev-dot {
+            box-shadow: 0 0 0 5px var(--pc, var(--gold)), 0 0 12px var(--pc, var(--gold))
+        }
+
+        .ev-phase {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 100px;
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            color: var(--bg)
+        }
+
+        .ev-date {
+            font-size: 10.5px;
+            color: var(--gold);
+            font-weight: 600;
+            letter-spacing: .8px;
+            margin-bottom: 3px
+        }
+
+        .ev-title {
+            font-family: var(--font-d);
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--cream);
+            line-height: 1.3
+        }
+
+        .ev-desc {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border2);
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.65
+        }
+
+        .ev-star {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 11px
+        }
+
+        .ev-card[data-star='true'] {
+            border-left: 3px solid var(--gold)
+        }
+
+        .stabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 26px;
+            flex-wrap: wrap
+        }
+
+        .stab {
+            padding: 9px 18px;
+            border-radius: 100px;
+            border: 1px solid var(--border2);
+            background: transparent;
+            color: var(--muted);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all .22s;
+            font-family: var(--font-b)
+        }
+
+        .stab:hover {
+            border-color: var(--gold);
+            color: var(--gold)
+        }
+
+        .stab.on {
+            background: var(--gold);
+            color: var(--bg);
+            border-color: var(--gold);
+            font-weight: 600
+        }
+
+        .sbody {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--rl);
+            padding: 36px;
+            max-width: 800px;
+            line-height: 1.9
+        }
+
+        .sbody h3 {
+            font-family: var(--font-d);
+            color: var(--cream);
+            font-size: 17px;
+            margin: 26px 0 9px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border2)
+        }
+
+        .sbody h3:first-child {
+            margin-top: 0
+        }
+
+        .sbody p {
+            color: var(--muted);
+            margin-bottom: 11px;
+            font-size: 13.5px
+        }
+
+        .sbody ul {
+            color: var(--muted);
+            font-size: 13.5px;
+            padding-left: 20px;
+            margin-bottom: 11px
+        }
+
+        .sbody ul li {
+            margin-bottom: 4px
+        }
+
+        .kw {
+            background: rgba(212, 175, 55, .14);
+            color: var(--gold);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-weight: 600
+        }
+
+        .qwrap {
+            max-width: 660px;
+            margin: 0 auto
+        }
+
+        .qdots {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 26px;
+            flex-wrap: wrap
+        }
+
+        .qd {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--card2);
+            border: 2px solid var(--border2);
+            transition: all .28s
+        }
+
+        .qd.cur {
+            background: var(--gold);
+            border-color: var(--gold);
+            transform: scale(1.4)
+        }
+
+        .qd.ok {
+            background: var(--green);
+            border-color: var(--green)
+        }
+
+        .qd.err {
+            background: var(--red);
+            border-color: var(--red)
+        }
+
+        .qcard {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--rl);
+            padding: 32px;
+            margin-bottom: 18px
+        }
+
+        .qnum {
+            font-size: 10.5px;
+            color: var(--gold);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px
+        }
+
+        .qq {
+            font-family: var(--font-d);
+            font-size: 18px;
+            color: var(--cream);
+            margin-bottom: 22px;
+            line-height: 1.45
+        }
+
+        .qopts {
+            display: flex;
+            flex-direction: column;
+            gap: 9px
+        }
+
+        .qopt {
+            padding: 13px 17px;
+            background: var(--card2);
+            border: 2px solid var(--border2);
+            border-radius: var(--r);
+            cursor: pointer;
+            transition: all .22s;
+            font-size: 13px;
+            text-align: left;
+            font-family: var(--font-b);
+            color: var(--text);
+            touch-action: manipulation
+        }
+
+        .qopt:hover:not(:disabled) {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: var(--gold3)
+        }
+
+        .qopt.ok {
+            border-color: var(--green) !important;
+            background: rgba(74, 222, 128, .1) !important;
+            color: var(--green) !important
+        }
+
+        .qopt.err {
+            border-color: var(--red) !important;
+            background: rgba(224, 82, 82, .1) !important;
+            color: var(--red) !important
+        }
+
+        .qopt:disabled {
+            cursor: default
+        }
+
+        .qfb {
+            padding: 12px 15px;
+            border-radius: var(--r);
+            margin-top: 10px;
+            font-size: 12.5px;
+            display: none;
+            line-height: 1.5
+        }
+
+        .qfb.show {
+            display: block
+        }
+
+        .qfb.ok {
+            background: rgba(74, 222, 128, .1);
+            border: 1px solid var(--green);
+            color: var(--green)
+        }
+
+        .qfb.err {
+            background: rgba(224, 82, 82, .1);
+            border: 1px solid var(--red);
+            color: var(--red)
+        }
+
+        .qexp {
+            font-size: 11.5px;
+            color: var(--muted);
+            margin-top: 6px;
+            line-height: 1.55
+        }
+
+        .qnav {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .qscore {
+            font-family: var(--font-d);
+            font-size: 15px;
+            color: var(--gold)
+        }
+
+        .qres {
+            text-align: center;
+            padding: 40px 20px
+        }
+
+        .qres-n {
+            font-family: var(--font-d);
+            font-size: 72px;
+            font-weight: 900;
+            color: var(--gold);
+            line-height: 1;
+            margin-bottom: 8px
+        }
+
+        .qres-sub {
+            font-size: 16px;
+            color: var(--cream);
+            margin-bottom: 10px
+        }
+
+        .diff-badge {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 100px;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            margin-bottom: 6px
+        }
+
+        .diff-f {
+            background: rgba(74, 222, 128, .2);
+            color: var(--green)
+        }
+
+        .diff-m {
+            background: rgba(251, 146, 60, .2);
+            color: var(--orange)
+        }
+
+        .diff-d {
+            background: rgba(224, 82, 82, .2);
+            color: var(--red)
+        }
+
+        .vf-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px
+        }
+
+        .vf-btn {
+            padding: 16px 36px;
+            border-radius: var(--rl);
+            border: 2px solid;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .22s;
+            font-family: var(--font-b);
+            touch-action: manipulation;
+            min-width: 120px
+        }
+
+        .vf-v {
+            border-color: var(--green);
+            color: var(--green);
+            background: transparent
+        }
+
+        .vf-f {
+            border-color: var(--red);
+            color: var(--red);
+            background: transparent
+        }
+
+        .vf-v:hover:not(:disabled) {
+            background: rgba(74, 222, 128, .1)
+        }
+
+        .vf-f:hover:not(:disabled) {
+            background: rgba(224, 82, 82, .1)
+        }
+
+        .vf-v.selected {
+            background: rgba(74, 222, 128, .2);
+            transform: scale(1.04)
+        }
+
+        .vf-f.selected {
+            background: rgba(224, 82, 82, .2);
+            transform: scale(1.04)
+        }
+
+        .fc-wrap {
+            max-width: 600px;
+            margin: 0 auto
+        }
+
+        .fc-info {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 18px
+        }
+
+        .fc {
+            width: 100%;
+            height: 260px;
+            perspective: 1200px;
+            cursor: pointer;
+            touch-action: manipulation
+        }
+
+        .fc-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform .55s cubic-bezier(.4, 0, .2, 1);
+            transform-style: preserve-3d
+        }
+
+        .fc.flipped .fc-inner {
+            transform: rotateY(180deg)
+        }
+
+        .fc-front,
+        .fc-back {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--rl);
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center
+        }
+
+        .fc-back {
+            transform: rotateY(180deg);
+            background: var(--card2);
+            border-color: var(--border)
+        }
+
+        .fc-hint {
+            font-size: 9.5px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 12px
+        }
+
+        .fc-text {
+            font-family: var(--font-d);
+            font-size: clamp(13px, 2.5vw, 18px);
+            color: var(--cream);
+            line-height: 1.45
+        }
+
+        .fc-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 18px
+        }
+
+        .fc-prog {
+            font-size: 13px;
+            color: var(--muted);
+            font-family: var(--font-d)
+        }
+
+        .swipe-hint {
+            text-align: center;
+            font-size: 11px;
+            color: var(--dim);
+            margin-top: 10px
+        }
+
+        .char-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px
+        }
+
+        .cc {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--rl);
+            padding: 22px;
+            transition: all .25s;
+            cursor: default
+        }
+
+        .cc:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--sh)
+        }
+
+        .cc-ico {
+            font-size: 30px;
+            margin-bottom: 10px;
+            display: block
+        }
+
+        .cc-name {
+            font-family: var(--font-d);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--cream);
+            margin-bottom: 4px
+        }
+
+        .cc-role {
+            font-size: 11px;
+            color: var(--gold);
+            font-weight: 600;
+            letter-spacing: .5px;
+            margin-bottom: 8px;
+            text-transform: uppercase
+        }
+
+        .cc-desc {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.6
+        }
+
+        .side-b {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 100px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            margin-bottom: 8px
+        }
+
+        .axis-b {
+            background: rgba(248, 113, 113, .2);
+            color: #f87171
+        }
+
+        .ally-b {
+            background: rgba(74, 222, 128, .2);
+            color: var(--green)
+        }
+
+        .pdf-wrap {
+            max-width: 900px
+        }
+
+        .pdf-frame {
+            width: 100%;
+            height: 75vh;
+            min-height: 500px;
+            border: none;
+            border-radius: var(--rl);
+            background: var(--card);
+            display: block
+        }
+
+        .pdf-msg {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--rl);
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 20px
+        }
+
+        .pg-level-card {
+            background: linear-gradient(135deg, var(--card), rgba(212, 175, 55, .07));
+            border: 1px solid var(--border);
+            border-radius: var(--rl);
+            padding: 28px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 20px
+        }
+
+        .pg-level-ico {
+            font-size: 48px;
+            flex-shrink: 0
+        }
+
+        .pg-level-info {
+            flex: 1
+        }
+
+        .pg-level-name {
+            font-family: var(--font-d);
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--cream)
+        }
+
+        .pg-level-xp {
+            font-size: 12px;
+            color: var(--muted);
+            margin: 4px 0 8px
+        }
+
+        .pg-xp-bar {
+            height: 8px;
+            background: var(--bg3);
+            border-radius: 100px;
+            overflow: hidden
+        }
+
+        .pg-xp-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--gold), var(--gold2));
+            border-radius: 100px;
+            transition: width 1.2s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        .pg-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+            gap: 12px;
+            margin-bottom: 22px
+        }
+
+        .pg-card {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--r);
+            padding: 18px;
+            text-align: center
+        }
+
+        .pg-n {
+            font-family: var(--font-d);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 4px
+        }
+
+        .pg-l {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .8px
+        }
+
+        .pg-bar-wrap {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--r);
+            padding: 18px;
+            margin-bottom: 10px
+        }
+
+        .pg-bar-lbl {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px
+        }
+
+        .pg-bar {
+            height: 6px;
+            background: var(--card2);
+            border-radius: 100px;
+            overflow: hidden
+        }
+
+        .pg-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--gold), var(--gold2));
+            border-radius: 100px;
+            transition: width 1.1s ease
+        }
+
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(251, 146, 60, .15);
+            border: 1px solid rgba(251, 146, 60, .3);
+            padding: 8px 16px;
+            border-radius: 100px;
+            margin-bottom: 22px
+        }
+
+        .streak-fire {
+            font-size: 20px
+        }
+
+        .streak-num {
+            font-family: var(--font-d);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--orange)
+        }
+
+        .streak-lbl {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .ach-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 12px;
+            margin-top: 20px
+        }
+
+        .ach-card {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--r);
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            transition: all .25s
+        }
+
+        .ach-card.unlocked {
+            border-color: rgba(212, 175, 55, .4);
+            background: linear-gradient(135deg, var(--card), rgba(212, 175, 55, .06))
+        }
+
+        .ach-card.locked {
+            opacity: .5;
+            filter: grayscale(.6)
+        }
+
+        .ach-ico {
+            font-size: 28px;
+            flex-shrink: 0
+        }
+
+        .ach-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--cream);
+            margin-bottom: 3px
+        }
+
+        .ach-desc {
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.45
+        }
+
+        .ach-date {
+            font-size: 10px;
+            color: var(--gold);
+            margin-top: 5px
+        }
+
+        .ach-toast {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: var(--card2);
+            border: 1px solid var(--gold);
+            border-radius: var(--r);
+            padding: 14px 18px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .5), 0 0 0 1px rgba(212, 175, 55, .2);
+            transform: translateX(120%);
+            transition: transform .4s cubic-bezier(.4, 0, .2, 1);
+            max-width: 280px
+        }
+
+        .ach-toast.show {
+            transform: none
+        }
+
+        .ach-toast-ico {
+            font-size: 26px
+        }
+
+        .ach-toast-txt .t {
+            font-size: 11px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700
+        }
+
+        .ach-toast-txt .n {
+            font-size: 13px;
+            color: var(--cream);
+            font-weight: 600;
+            margin: 2px 0
+        }
+
+        .ach-toast-txt .d {
+            font-size: 11px;
+            color: var(--muted)
+        }
+
+        .sr-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .sr-in {
+            flex: 1;
+            min-width: 200px;
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--r);
+            padding: 12px 16px;
+            color: var(--text);
+            font-size: 14px;
+            font-family: var(--font-b);
+            outline: none;
+            transition: border-color .2s
+        }
+
+        .sr-in:focus {
+            border-color: var(--gold)
+        }
+
+        .sr-in::placeholder {
+            color: var(--dim)
+        }
+
+        .sr-item {
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: var(--r);
+            padding: 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all .22s
+        }
+
+        .sr-item:hover {
+            border-color: rgba(212, 175, 55, .4);
+            transform: translateX(3px)
+        }
+
+        .sr-date {
+            font-size: 10px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px
+        }
+
+        .sr-title {
+            font-family: var(--font-d);
+            font-size: 15px;
+            color: var(--cream);
+            margin-bottom: 4px
+        }
+
+        .sr-snip {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5
+        }
+
+        mark {
+            background: rgba(212, 175, 55, .25);
+            color: var(--gold);
+            padding: 0 2px;
+            border-radius: 3px
+        }
+
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted)
+        }
+
+        .empty-e {
+            font-size: 48px;
+            margin-bottom: 12px
+        }
+
+        .modal-bg {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .78);
+            z-index: 600;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px)
+        }
+
+        .modal-bg.show {
+            display: flex
+        }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--rl);
+            padding: 32px;
+            max-width: 520px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--sh)
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: var(--card2);
+            border: 1px solid var(--border2);
+            color: var(--muted);
+            font-size: 13px;
+            transition: all .2s
+        }
+
+        .modal-close:hover {
+            color: var(--red);
+            border-color: var(--red)
+        }
+
+        .rev-item {
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border2);
+            display: flex;
+            gap: 16px
+        }
+
+        .rev-date {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gold);
+            min-width: 90px;
+            padding-top: 1px
+        }
+
+        .rev-text {
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        #mm-canvas {
+            width: 100%;
+            border-radius: var(--rl);
+            background: var(--card);
+            border: 1px solid var(--border2);
+            cursor: pointer;
+            display: block
+        }
+
+        .mm-info {
+            margin-top: 14px;
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 14px;
+            display: none
+        }
+
+        .mm-info.show {
+            display: block
+        }
+
+        .mm-info-title {
+            font-family: var(--font-d);
+            font-size: 15px;
+            color: var(--cream);
+            margin-bottom: 5px
+        }
+
+        .mm-info-desc {
+            font-size: 12.5px;
+            color: var(--muted);
+            line-height: 1.6
+        }
+
+        .daily-done {
+            background: var(--card);
+            border: 1px solid var(--green);
+            border-radius: var(--r);
+            padding: 16px;
+            text-align: center;
+            color: var(--green);
+            font-size: 13px;
+            margin-bottom: 14px
+        }
+
+        .section-h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px
+        }
+
+        .section-h2 h3 {
+            font-family: var(--font-d);
+            font-size: 20px;
+            color: var(--cream)
+        }
+
+        @media(max-width:900px) {
+            .sec {
+                padding: 36px 28px
+            }
+
+            .sbody {
+                padding: 28px
+            }
+        }
+
+        @media(max-width:767px) {
+            .sidebar {
+                display: none !important
+            }
+
+            .mob-topbar {
+                display: flex !important
+            }
+
+            .mob-bottom {
+                display: grid !important
+            }
+
+            .main {
+                margin-left: 0 !important;
+                padding-top: var(--mob-bar);
+                padding-bottom: calc(var(--mob-nav) + env(safe-area-inset-bottom))
+            }
+
+            .sec {
+                padding: 20px 16px 24px
+            }
+
+            .sh-title {
+                font-size: clamp(20px, 6vw, 30px)
+            }
+
+            .dgrid {
+                padding: 0 0 20px;
+                grid-template-columns: 1fr 1fr
+            }
+
+            .tl-line {
+                display: none
+            }
+
+            .ev {
+                flex-direction: column !important;
+                align-items: stretch;
+                padding-left: 22px
+            }
+
+            .ev::before {
+                content: '';
+                position: absolute;
+                left: 8px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: rgba(212, 175, 55, .3)
+            }
+
+            .ev::after {
+                content: '';
+                position: absolute;
+                left: 4px;
+                top: 18px;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: var(--pc, var(--gold));
+                box-shadow: 0 0 0 3px var(--bg)
+            }
+
+            .ev-card {
+                width: 100%
+            }
+
+            .ev-dot {
+                display: none
+            }
+
+            .sbody {
+                padding: 20px
+            }
+
+            .qcard {
+                padding: 22px
+            }
+
+            .qq {
+                font-size: 16px
+            }
+
+            .char-grid {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .pg-grid {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .ach-grid {
+                grid-template-columns: 1fr
+            }
+
+            .stats-row {
+                gap: 20px
+            }
+
+            .stat-n {
+                font-size: 28px
+            }
+
+            .hero-h {
+                font-size: clamp(22px, 7vw, 36px)
+            }
+
+            .hero-bg {
+                font-size: 70px
+            }
+
+            .ach-toast {
+                bottom: calc(var(--mob-nav) + 10px);
+                right: 10px;
+                left: 10px;
+                max-width: none
+            }
+
+            .vf-btns {
+                gap: 10px
+            }
+
+            .vf-btn {
+                padding: 14px 24px;
+                font-size: 14px
+            }
+
+            .pdf-frame {
+                height: 60vh
+            }
+        }
+
+        @media(max-width:480px) {
+            .dgrid {
+                grid-template-columns: 1fr
+            }
+
+            .char-grid {
+                grid-template-columns: 1fr
+            }
+
+            .cc-name {
+                font-size: 14px
+            }
+
+            .fc {
+                height: 220px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+
+        <nav class="sidebar">
+            <div class="sidebar-brand">SGM</div>
+            <button class="ni active" data-s="home" onclick="go('home')"><span>🏠</span>
+                <div class="tip">Dashboard</div>
+            </button>
+            <button class="ni" data-s="timeline" onclick="go('timeline')"><span>📅</span>
+                <div class="tip">Timeline</div>
+            </button>
+            <button class="ni" data-s="summaries" onclick="go('summaries')"><span>📖</span>
+                <div class="tip">Riassunti</div>
+            </button>
+            <button class="ni" data-s="quiz-g" onclick="go('quiz-g')"><span>🎯</span>
+                <div class="tip">Quiz Generale</div>
+            </button>
+            <button class="ni" data-s="quiz-vf" onclick="go('quiz-vf')"><span>✅</span>
+                <div class="tip">Vero / Falso</div>
+            </button>
+            <button class="ni" data-s="quiz-d" onclick="go('quiz-d')"><span>📆</span>
+                <div class="tip">Quiz Date</div>
+            </button>
+            <button class="ni" data-s="quiz-m" onclick="go('quiz-m')"><span>🎲</span>
+                <div class="tip">Quiz Misto</div>
+            </button>
+            <button class="ni" data-s="flashcards" onclick="go('flashcards')"><span>🃏</span>
+                <div class="tip">Flashcard</div>
+            </button>
+            <button class="ni" data-s="characters" onclick="go('characters')"><span>👥</span>
+                <div class="tip">Personaggi</div>
+            </button>
+            <button class="ni" data-s="mindmap" onclick="go('mindmap')"><span>🕸️</span>
+                <div class="tip">Mappa Concettuale</div>
+            </button>
+            <button class="ni" data-s="pdf" onclick="go('pdf')"><span>📄</span>
+                <div class="tip">PDF Completo</div>
+            </button>
+            <button class="ni" data-s="progress" onclick="go('progress')"><span>📊</span>
+                <div class="tip">Progressi</div>
+            </button>
+            <button class="ni" data-s="search" onclick="go('search')"><span>🔍</span>
+                <div class="tip">Cerca</div>
+            </button>
+            <div class="sidebar-spacer"></div>
+            <div class="sidebar-actions">
+                <button class="sab" onclick="quickRev()" title="Date rapide">📋</button>
+                <button class="sab" onclick="themeToggle()" title="Tema">🌓</button>
+            </div>
+        </nav>
+
+        <div class="mob-topbar">
+            <span class="mob-brand">⚔️ SGM</span>
+            <button class="mob-icon-btn" onclick="quickRev()">📋</button>
+            <button class="mob-icon-btn" onclick="themeToggle()">🌓</button>
+            <button class="mob-icon-btn" onclick="openMobMenu()">☰</button>
+        </div>
+
+        <div class="mob-overlay" id="mob-overlay" onclick="closeMobMenu()"></div>
+        <div class="mob-menu" id="mob-menu">
+            <div class="mob-menu-header">
+                <span class="mob-menu-title">📚 Navigazione</span>
+                <button class="mob-close" onclick="closeMobMenu()">✕</button>
+            </div>
+            <div class="mob-nav-list">
+                <button class="mob-nav-item active" data-s="home" onclick="go('home');closeMobMenu()"><span
+                        class="mni-ico">🏠</span><span class="mni-lbl">Dashboard</span></button>
+                <button class="mob-nav-item" data-s="timeline" onclick="go('timeline');closeMobMenu()"><span
+                        class="mni-ico">📅</span><span class="mni-lbl">Timeline</span></button>
+                <button class="mob-nav-item" data-s="summaries" onclick="go('summaries');closeMobMenu()"><span
+                        class="mni-ico">📖</span><span class="mni-lbl">Riassunti</span></button>
+                <button class="mob-nav-item" data-s="quiz-g" onclick="go('quiz-g');closeMobMenu()"><span
+                        class="mni-ico">🎯</span><span class="mni-lbl">Quiz Generale</span></button>
+                <button class="mob-nav-item" data-s="quiz-vf" onclick="go('quiz-vf');closeMobMenu()"><span
+                        class="mni-ico">✅</span><span class="mni-lbl">Vero / Falso</span></button>
+                <button class="mob-nav-item" data-s="quiz-d" onclick="go('quiz-d');closeMobMenu()"><span
+                        class="mni-ico">📆</span><span class="mni-lbl">Quiz Date</span></button>
+                <button class="mob-nav-item" data-s="quiz-m" onclick="go('quiz-m');closeMobMenu()"><span
+                        class="mni-ico">🎲</span><span class="mni-lbl">Quiz Misto</span></button>
+                <button class="mob-nav-item" data-s="flashcards" onclick="go('flashcards');closeMobMenu()"><span
+                        class="mni-ico">🃏</span><span class="mni-lbl">Flashcard</span></button>
+                <button class="mob-nav-item" data-s="characters" onclick="go('characters');closeMobMenu()"><span
+                        class="mni-ico">👥</span><span class="mni-lbl">Personaggi</span></button>
+                <button class="mob-nav-item" data-s="mindmap" onclick="go('mindmap');closeMobMenu()"><span
+                        class="mni-ico">🕸️</span><span class="mni-lbl">Mappa</span></button>
+                <button class="mob-nav-item" data-s="pdf" onclick="go('pdf');closeMobMenu()"><span
+                        class="mni-ico">📄</span><span class="mni-lbl">PDF Completo</span></button>
+                <button class="mob-nav-item" data-s="progress" onclick="go('progress');closeMobMenu()"><span
+                        class="mni-ico">📊</span><span class="mni-lbl">Progressi</span></button>
+                <button class="mob-nav-item" data-s="search" onclick="go('search');closeMobMenu()"><span
+                        class="mni-ico">🔍</span><span class="mni-lbl">Cerca</span></button>
+            </div>
+        </div>
+
+        <nav class="mob-bottom" id="mob-bottom">
+            <button class="mbn-item active" data-s="home" onclick="go('home')"><span class="mbn-ico">🏠</span><span
+                    class="mbn-lbl">Home</span></button>
+            <button class="mbn-item" data-s="timeline" onclick="go('timeline')"><span class="mbn-ico">📅</span><span
+                    class="mbn-lbl">Timeline</span></button>
+            <button class="mbn-item" data-s="quiz-g" onclick="go('quiz-g')"><span class="mbn-ico">🎯</span><span
+                    class="mbn-lbl">Quiz</span></button>
+            <button class="mbn-item" data-s="flashcards" onclick="go('flashcards')"><span class="mbn-ico">🃏</span><span
+                    class="mbn-lbl">Flash</span></button>
+            <button class="mbn-item" data-s="progress" onclick="go('progress')"><span class="mbn-ico">📊</span><span
+                    class="mbn-lbl">Stats</span></button>
+        </nav>
+
+        <main class="main">
+
+            <section class="sec on" id="s-home">
+                <div class="dash-hero">
+                    <div class="hero-bg">1939–1945</div>
+                    <div class="hero-in">
+                        <div class="hero-pill">✦ Capitolo 11 — Liceo Scientifico</div>
+                        <h1 class="hero-h">Seconda<br>Guerra Mondiale</h1>
+                        <p class="hero-p">Studio interattivo completo con quiz, timeline, flashcard, personaggi e
+                            analisi approfondita.</p>
+                        <div class="stats-row">
+                            <div class="stat-item"><span class="stat-n">30+</span><span class="stat-l">Quiz</span></div>
+                            <div class="stat-item"><span class="stat-n">40+</span><span class="stat-l">Flashcard</span>
+                            </div>
+                            <div class="stat-item"><span class="stat-n">50+</span><span class="stat-l">Eventi</span>
+                            </div>
+                            <div class="stat-item"><span class="stat-n">20+</span><span class="stat-l">Personaggi</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="xp-bar-wrap" id="home-xp"></div>
+                <div id="home-daily"></div>
+                <div class="dgrid">
+                    <div class="dc" style="--ac:var(--gold)" onclick="go('timeline')"><span class="dc-ico">📅</span>
+                        <div class="dc-title">Timeline Interattiva</div>
+                        <div class="dc-desc">Oltre 50 eventi chiave con descrizioni espandibili, filtri per fase e
+                            animazioni.</div><span class="dc-badge">50+ eventi</span>
+                    </div>
+                    <div class="dc" style="--ac:var(--blue)" onclick="go('summaries')"><span class="dc-ico">📖</span>
+                        <div class="dc-title">Riassunti</div>
+                        <div class="dc-desc">Quattro livelli di dettaglio: da 10 righe a schema pre-verifica con tutte
+                            le date.</div><span class="dc-badge">4 livelli</span>
+                    </div>
+                    <div class="dc" style="--ac:var(--green)" onclick="go('quiz-g')"><span class="dc-ico">🎯</span>
+                        <div class="dc-title">Quiz Generale</div>
+                        <div class="dc-desc">30 domande con difficoltà selezionabile (facile/media/difficile) e
+                            spiegazioni dettagliate.</div><span class="dc-badge">3 difficoltà</span>
+                    </div>
+                    <div class="dc" style="--ac:var(--teal)" onclick="go('quiz-vf')"><span class="dc-ico">✅</span>
+                        <div class="dc-title">Vero / Falso</div>
+                        <div class="dc-desc">25 affermazioni tratte dal PDF originale. Metti alla prova la precisione
+                            delle tue conoscenze.</div><span class="dc-badge">Nuovo!</span>
+                    </div>
+                    <div class="dc" style="--ac:var(--orange)" onclick="go('quiz-d')"><span class="dc-ico">📆</span>
+                        <div class="dc-title">Quiz Date</div>
+                        <div class="dc-desc">Abbina date e avvenimenti. Modalità data→evento ed evento→data.</div><span
+                            class="dc-badge">30 date</span>
+                    </div>
+                    <div class="dc" style="--ac:var(--purple)" onclick="go('quiz-m')"><span class="dc-ico">🎲</span>
+                        <div class="dc-title">Quiz Misto</div>
+                        <div class="dc-desc">Combinazione casuale di tutte le tipologie di domande per una preparazione
+                            completa.</div><span class="dc-badge">Casuale</span>
+                    </div>
+                    <div class="dc" style="--ac:var(--pink)" onclick="go('flashcards')"><span class="dc-ico">🃏</span>
+                        <div class="dc-title">Flashcard</div>
+                        <div class="dc-desc">40+ schede fronte/retro. Studia i concetti chiave con il metodo della
+                            ripetizione.</div>
+                    </div>
+                    <div class="dc" style="--ac:var(--red)" onclick="go('characters')"><span class="dc-ico">👥</span>
+                        <div class="dc-title">Personaggi</div>
+                        <div class="dc-desc">Profili di 20+ figure storiche divise tra Asse e Alleati, con ruoli e
+                            contributi.</div>
+                    </div>
+                    <div class="dc" style="--ac:var(--yellow)" onclick="go('mindmap')"><span class="dc-ico">🕸️</span>
+                        <div class="dc-title">Mappa Concettuale</div>
+                        <div class="dc-desc">Visualizzazione interattiva delle connessioni tra cause, fronti, personaggi
+                            e conseguenze.</div>
+                    </div>
+                    <div class="dc" style="--ac:var(--muted)" onclick="go('pdf')"><span class="dc-ico">📄</span>
+                        <div class="dc-title">PDF Completo</div>
+                        <div class="dc-desc">Consulta il testo originale del capitolo 11 senza riassunti. Zoom e
+                            navigazione interna.</div>
+                    </div>
+                    <div class="dc" style="--ac:var(--gold)" onclick="go('progress')"><span class="dc-ico">📊</span>
+                        <div class="dc-title">Progressi & Achievement</div>
+                        <div class="dc-desc">Livelli XP, badge sbloccabili, statistiche dettagliate e streak
+                            giornaliero.</div>
+                    </div>
+                    <div class="dc" style="--ac:var(--blue)" onclick="go('search')"><span class="dc-ico">🔍</span>
+                        <div class="dc-title">Ricerca Globale</div>
+                        <div class="dc-desc">Cerca in tutti gli eventi, personaggi, flashcard e quiz dell'applicazione.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="sec" id="s-timeline">
+                <div class="sh">
+                    <div class="sh-tag">Cronologia Completa</div>
+                    <h1 class="sh-title">Timeline</h1>
+                    <p class="sh-sub">Clicca su un evento per espanderne i dettagli. Filtra per fase storica.</p>
+                </div>
+                <div class="flt-row" id="tl-filters"></div>
+                <div class="tl-wrap">
+                    <div class="tl-line"></div>
+                    <div id="tl-evts"></div>
+                </div>
+            </section>
+
+            <section class="sec" id="s-summaries">
+                <div class="sh">
+                    <div class="sh-tag">Testi di Studio</div>
+                    <h1 class="sh-title">Riassunti</h1>
+                    <p class="sh-sub">Scegli il livello di dettaglio più adatto al tuo momento di studio.</p>
+                </div>
+                <div class="stabs">
+                    <button class="stab on" onclick="showSum(0,this)">⚡ 10 Righe</button>
+                    <button class="stab" onclick="showSum(1,this)">📋 Medio</button>
+                    <button class="stab" onclick="showSum(2,this)">📚 Dettagliato</button>
+                    <button class="stab" onclick="showSum(3,this)">🎯 Pre-Verifica</button>
+                </div>
+                <div class="sbody" id="sum-body"></div>
+            </section>
+
+            <section class="sec" id="s-quiz-g">
+                <div class="sh">
+                    <div class="sh-tag">Domande a Risposta Multipla</div>
+                    <h1 class="sh-title">Quiz Generale</h1>
+                    <p class="sh-sub">30 domande suddivise per difficoltà con spiegazioni dettagliate.</p>
+                </div>
+                <div class="flt-row">
+                    <button class="fb on" onclick="setQGDiff('all',this)">Tutti</button>
+                    <button class="fb diff-f" onclick="setQGDiff('f',this)">🟢 Facile</button>
+                    <button class="fb diff-m" onclick="setQGDiff('m',this)">🟠 Media</button>
+                    <button class="fb diff-d" onclick="setQGDiff('d',this)">🔴 Difficile</button>
+                </div>
+                <div class="qwrap" id="qg-cont"></div>
+            </section>
+
+            <section class="sec" id="s-quiz-vf">
+                <div class="sh">
+                    <div class="sh-tag">Verifica Rapida</div>
+                    <h1 class="sh-title">Vero o Falso</h1>
+                    <p class="sh-sub">25 affermazioni tratte dal testo originale. Vero o falso?</p>
+                </div>
+                <div class="qwrap" id="qvf-cont"></div>
+            </section>
+
+            <section class="sec" id="s-quiz-d">
+                <div class="sh">
+                    <div class="sh-tag">Cronologia</div>
+                    <h1 class="sh-title">Quiz Date</h1>
+                    <p class="sh-sub">Abbina date e avvenimenti. Modalità casuale: data→evento o evento→data.</p>
+                </div>
+                <div class="qwrap" id="qd-cont"></div>
+            </section>
+
+            <section class="sec" id="s-quiz-m">
+                <div class="sh">
+                    <div class="sh-tag">Modalità Completa</div>
+                    <h1 class="sh-title">Quiz Misto</h1>
+                    <p class="sh-sub">15 domande casuali da tutti i tipi: generale, vero/falso, date.</p>
+                </div>
+                <div class="qwrap" id="qm-cont"></div>
+            </section>
+
+            <section class="sec" id="s-flashcards">
+                <div class="sh">
+                    <div class="sh-tag">Ripetizione Attiva</div>
+                    <h1 class="sh-title">Flashcard</h1>
+                    <p class="sh-sub">Clicca per girare. Usa le frecce ← → o i tasti della tastiera.</p>
+                </div>
+                <div class="fc-wrap" id="fc-cont"></div>
+            </section>
+
+            <section class="sec" id="s-characters">
+                <div class="sh">
+                    <div class="sh-tag">Figure Storiche</div>
+                    <h1 class="sh-title">Personaggi</h1>
+                    <p class="sh-sub">I protagonisti della Seconda Guerra Mondiale.</p>
+                </div>
+                <div class="flt-row">
+                    <button class="fb on" onclick="charFilter('all',this)">Tutti</button>
+                    <button class="fb" onclick="charFilter('asse',this)">🔴 Asse</button>
+                    <button class="fb" onclick="charFilter('alleati',this)">🟢 Alleati</button>
+                </div>
+                <div class="char-grid" id="char-grid"></div>
+            </section>
+
+            <section class="sec" id="s-mindmap">
+                <div class="sh">
+                    <div class="sh-tag">Visualizzazione</div>
+                    <h1 class="sh-title">Mappa Concettuale</h1>
+                    <p class="sh-sub">Clicca sui nodi per maggiori informazioni.</p>
+                </div>
+                <canvas id="mm-canvas" height="600"></canvas>
+                <div class="mm-info" id="mm-info">
+                    <div class="mm-info-title" id="mm-info-t"></div>
+                    <div class="mm-info-desc" id="mm-info-d"></div>
+                </div>
+            </section>
+
+            <section class="sec" id="s-pdf">
+                <div class="sh">
+                    <div class="sh-tag">Testo Originale</div>
+                    <h1 class="sh-title">PDF Completo</h1>
+                    <p class="sh-sub">Il capitolo 11 originale. Naviga, ingrandisci, cerca nel testo.</p>
+                </div>
+                <div class="pdf-wrap">
+                    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+                        <a href="SecondaGuerraMondiale.pdf" download class="btn btn-p">⬇️ Scarica PDF</a>
+                        <a href="SecondaGuerraMondiale.pdf" target="_blank" class="btn btn-s">↗️ Apri in nuova
+                            scheda</a>
+                    </div>
+                    <object class="pdf-frame" data="SecondaGuerraMondiale.pdf" type="application/pdf">
+                        <div class="pdf-msg">
+                            <div style="font-size:40px;margin-bottom:12px">📄</div>
+                            <p style="color:var(--cream);font-size:15px;margin-bottom:8px">Il visualizzatore PDF non è
+                                disponibile nel tuo browser.</p>
+                            <p style="color:var(--muted);font-size:13px;margin-bottom:20px">Assicurati che il file
+                                <strong>SecondaGuerraMondiale.pdf</strong> sia nella stessa cartella di questo HTML.</p>
+                            <a href="SecondaGuerraMondiale.pdf" download class="btn btn-p">⬇️ Scarica il PDF</a>
+                        </div>
+                    </object>
+                </div>
+            </section>
+
+            <section class="sec" id="s-progress">
+                <div class="sh">
+                    <div class="sh-tag">Il Tuo Studio</div>
+                    <h1 class="sh-title">Progressi</h1>
+                </div>
+                <div id="pg-level"></div>
+                <div id="pg-streak"></div>
+                <div class="section-h2">
+                    <h3>📈 Statistiche</h3>
+                </div>
+                <div id="pg-grid" class="pg-grid"></div>
+                <div id="pg-bars" style="margin-bottom:24px"></div>
+                <div class="section-h2">
+                    <h3>🏆 Achievement</h3>
+                </div>
+                <div class="ach-grid" id="ach-grid"></div>
+                <div style="margin-top:24px;display:flex;gap:10px;flex-wrap:wrap">
+                    <button class="btn btn-r" onclick="resetProgress()">🗑️ Azzera progressi</button>
+                    <button class="btn btn-g" onclick="quickRev()">📋 Date rapide</button>
+                </div>
+            </section>
+
+            <section class="sec" id="s-search">
+                <div class="sh">
+                    <div class="sh-tag">Ricerca Globale</div>
+                    <h1 class="sh-title">Cerca</h1>
+                    <p class="sh-sub">Cerca in eventi, personaggi, flashcard e quiz.</p>
+                </div>
+                <div class="sr-box">
+                    <input class="sr-in" id="srch-in" type="text" placeholder="Cerca: Stalingrado, Rommel, Olocausto…"
+                        oninput="doSearch(this.value)">
+                    <select id="sr-cat" onchange="doSearch(document.getElementById('srch-in').value)"
+                        style="background:var(--card);border:1px solid var(--border2);color:var(--text);padding:11px 14px;border-radius:var(--r);font-family:var(--font-b);font-size:13px;cursor:pointer;outline:none">
+                        <option value="all">Tutto</option>
+                        <option value="Evento">Solo eventi</option>
+                        <option value="Personaggio">Solo personaggi</option>
+                        <option value="Flashcard">Solo flashcard</option>
+                        <option value="Quiz">Solo quiz</option>
+                    </select>
+                </div>
+                <div id="sr-res"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <div class="modal-bg" id="qr-modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div class="sh" style="margin-bottom:18px">
+                <div class="sh-tag">Ripasso Rapido</div>
+                <h2 class="sh-title" style="font-size:24px">Date Essenziali</h2>
+            </div>
+            <div id="qr-list"></div>
+        </div>
+    </div>
+
+    <div class="ach-toast" id="ach-toast">
+        <div class="ach-toast-ico" id="ach-toast-ico"></div>
+        <div class="ach-toast-txt">
+            <div class="t">Achievement sbloccato!</div>
+            <div class="n" id="ach-toast-name"></div>
+            <div class="d" id="ach-toast-desc"></div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════
+        // ACHIEVEMENTS & LEVELS
+        // ═══════════════════════════════════════════════════════════════════
+        const ACHIEVEMENTS = [
+            { id: 'first_quiz', ico: '🎓', title: 'Primo Passo', desc: 'Completa il tuo primo quiz', xp: 20 },
+            { id: 'perfect', ico: '🏆', title: 'Perfezionista', desc: 'Ottieni 100% in qualsiasi quiz', xp: 50 },
+            { id: 'study_10', ico: '📚', title: 'Studioso', desc: 'Accumula 200 XP totali', xp: 30 },
+            { id: 'streak_3', ico: '🔥', title: 'Costante', desc: 'Studia 3 giorni consecutivi', xp: 40 },
+            { id: 'all_fc', ico: '🃏', title: 'Collezionista', desc: 'Visualizza tutte le flashcard', xp: 30 },
+            { id: 'date_expert', ico: '📅', title: 'Cronista', desc: 'Completa il quiz date con ≥80%', xp: 40 },
+            { id: 'quiz_expert', ico: '🎯', title: 'Esperto', desc: 'Completa quiz generale con ≥80%', xp: 40 },
+            { id: 'vf_master', ico: '✅', title: 'Logico', desc: 'Completa vero/falso con ≥90%', xp: 50 },
+            { id: 'all_types', ico: '🌍', title: 'Stratega', desc: 'Completa tutti e 4 i tipi di quiz', xp: 60 },
+            { id: 'level3', ico: '💎', title: 'Storico', desc: 'Raggiungi il livello Storico', xp: 100 },
+        ];
+
+        const LEVELS = [
+            { min: 0, max: 99, name: 'Principiante', ico: '📗' },
+            { min: 100, max: 299, name: 'Studente', ico: '📘' },
+            { min: 300, max: 599, name: 'Storico', ico: '📙' },
+            { min: 600, max: 999, name: 'Esperto', ico: '📕' },
+            { min: 1000, max: Infinity, name: 'Maestro', ico: '📚' },
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DATA — PHASES
+        // ═══════════════════════════════════════════════════════════════════
+        const PHASES = {
+            pre: { label: 'Premesse', color: '#a78bfa', bg: '#a78bfa' },
+            blitz: { label: 'Blitzkrieg', color: '#f87171', bg: '#f87171' },
+            brit: { label: 'Fr. Occidentale', color: '#60a5fa', bg: '#60a5fa' },
+            barb: { label: 'Fr. Orientale', color: '#fb923c', bg: '#fb923c' },
+            holo: { label: 'Olocausto', color: '#dc2626', bg: '#dc2626' },
+            turn: { label: 'Svolta', color: '#facc15', bg: '#facc15' },
+            ita: { label: 'Italia', color: '#f472b6', bg: '#f472b6' },
+            adv: { label: 'Av. Alleati', color: '#4ade80', bg: '#4ade80' },
+            vic: { label: 'Vittoria', color: '#2dd4bf', bg: '#2dd4bf' },
+            pac: { label: 'Pacifico', color: '#818cf8', bg: '#818cf8' },
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DATA — EVENTS
+        // ═══════════════════════════════════════════════════════════════════
+        const EVENTS = [
+            { d: 'Maggio 1939', t: 'Patto d\'Acciaio', ph: 'pre', star: true, desc: 'Germania e Italia firmano un\'alleanza militare. Mussolini si fa promettere che la guerra non sarebbe scoppiata prima di qualche anno. Hitler non mantenne la parola.' },
+            { d: 'Agosto 1939', t: 'Patto Molotov-Ribbentrop', ph: 'pre', star: true, desc: 'Patto di non aggressione tra Germania e URSS con clausole segrete: spartizione della Polonia e sfera d\'influenza sovietica sui Paesi Baltici (Estonia, Lettonia, Lituania).' },
+            { d: '1 settembre 1939', t: 'Invasione della Polonia', ph: 'blitz', star: true, desc: 'Hitler lancia il Blitzkrieg: concentrazione di panzer e aerei in pochi punti per sfondare il fronte. La Polonia è travolta in meno di tre settimane.' },
+            { d: '3 settembre 1939', t: 'Francia e GB dichiarano guerra', ph: 'blitz', star: true, desc: 'A sorpresa per Hitler, Francia e Gran Bretagna inviano un ultimatum. Inizia però la "drôle de guerre": nessun combattimento sul fronte occidentale.' },
+            { d: '17 settembre 1939', t: 'URSS invade la Polonia orientale', ph: 'blitz', star: false, desc: 'L\'Armata Rossa occupa le province orientali polacche come stabilito nel Patto Molotov-Ribbentrop. La Polonia è divisa tra le due potenze.' },
+            { d: 'Settembre 1939', t: 'Caduta di Varsavia', ph: 'blitz', star: false, desc: 'Dopo durissimi bombardamenti, Varsavia cade. Inizia un\'occupazione brutale: deportazione degli ebrei nei ghetti, sterminio di decine di migliaia di civili.' },
+            { d: '21 settembre 1939', t: 'Ordine Heydrich sui ghetti', ph: 'holo', star: false, desc: 'Heydrich ordina la concentrazione degli ebrei polacchi nelle grandi città. Prima tappa verso la "soluzione finale". Il ghetto di Varsavia raccoglierà fino a 500.000 persone.' },
+            { d: 'Fine 1939 – inizio 1940', t: 'Guerra d\'Inverno: URSS-Finlandia', ph: 'blitz', star: false, desc: 'Stalin attacca la Finlandia per ottenere territorio strategico. I finlandesi resistono per mesi poi cedono il 10% del territorio.' },
+            { d: 'Aprile-giugno 1940', t: 'Occupazione Danimarca e Norvegia', ph: 'brit', star: false, desc: 'Tedeschi occupano i neutri scandinavi. La Danimarca cede subito. La Norvegia resiste ma capitola in giugno. Nasce il governo collaborazionista di Quisling (1942).' },
+            { d: '10 maggio 1940', t: 'Invasione Belgio e Paesi Bassi', ph: 'brit', star: false, desc: 'I tedeschi attaccano a nord attirando le truppe alleate in Belgio. Il colpo principale arriva dalle Ardenne, aggirando la Linea Maginot.' },
+            { d: '27 maggio – 4 giugno 1940', t: 'Operazione Dynamo – Dunkerque', ph: 'brit', star: true, desc: '800 imbarcazioni (molte civili) evacuano 338.000 soldati dal porto di Dunkerque sotto il fuoco tedesco. Churchill la chiama vittoria dello spirito, non delle armi.' },
+            { d: '10 giugno 1940', t: 'L\'Italia entra in guerra', ph: 'brit', star: true, desc: 'Mussolini annuncia dal balcone di Palazzo Venezia l\'entrata in guerra. La Francia sta per capitolare. L\'esercito italiano conquista solo una piccola fetta di territorio francese.' },
+            { d: '14 giugno 1940', t: 'Caduta di Parigi', ph: 'brit', star: true, desc: 'L\'esercito tedesco entra a Parigi. La Linea Maginot è aggirata. La Francia è sconfitta in sei settimane.' },
+            { d: '22 giugno 1940', t: 'Armistizio di Compiègne', ph: 'brit', star: true, desc: 'La Francia firma la resa nello stesso luogo in cui la Germania aveva capitolato nel 1918. Nasce il governo collaborazionista di Vichy (Pétain). De Gaulle organizza la Francia Libera da Londra.' },
+            { d: 'Luglio-ottobre 1940', t: 'Battaglia d\'Inghilterra', ph: 'brit', star: true, desc: 'La Luftwaffe bombarda la Gran Bretagna per 5 mesi. Il radar permette alla RAF di intercettare i tedeschi. RAF: ~1000 aerei persi. Luftwaffe: ~2000. Hitler rinuncia all\'Operazione Leone Marino.' },
+            { d: 'Fine 1940-1941', t: 'Battaglia dell\'Atlantico', ph: 'brit', star: false, desc: 'Gli U-Boote tedeschi affondano le navi mercantili britanniche. Dal 1943 la marina britannica e le nuove tecnologie ribaltano la situazione.' },
+            { d: 'Agosto 1941', t: 'Carta Atlantica', ph: 'brit', star: false, desc: 'Incontro Roosevelt-Churchill a Terranova: principi del futuro ordine internazionale (libero accesso alle risorse, autodeterminazione, liberalizzazione). Gli USA non entrano ancora in guerra.' },
+            { d: 'Fine 1940-1941', t: 'Guerra parallela dell\'Italia – Africa', ph: 'barb', star: false, desc: 'L\'esercito italiano invade l\'Egitto ma viene sconfitto. Solo l\'intervento dell\'Afrika Korps di Rommel salva gli italiani.' },
+            { d: 'Ottobre 1940', t: 'Italia attacca la Grecia', ph: 'barb', star: false, desc: 'Senza preavvertire Hitler, l\'Italia attacca la Grecia dall\'Albania. La guerra si trasforma in catastrofe: l\'esercito italiano è ricacciato in Albania.' },
+            { d: 'Aprile 1941', t: 'Invasione iugoslava e greca', ph: 'barb', star: false, desc: 'Per salvare l\'Italia dalla disfatta in Grecia, Hitler invade Iugoslavia e Grecia. Capitolano in pochi giorni.' },
+            { d: 'Maggio 1941', t: 'Perdita dell\'Africa Orientale', ph: 'barb', star: false, desc: 'Un corpo di spedizione britannico occupa Somalia, Eritrea ed Etiopia. L\'Italia perde definitivamente le colonie nel Corno d\'Africa.' },
+            { d: '22 giugno 1941', t: 'Operazione Barbarossa', ph: 'barb', star: true, desc: 'Hitler lancia l\'invasione dell\'URSS con 3 milioni di soldati. A settembre i tedeschi sono alle porte di Mosca e Leningrado. Stalin organizza la "Grande guerra patriottica".' },
+            { d: 'Autunno 1941', t: 'Babij Jar e massacri di massa', ph: 'holo', star: true, desc: 'Gli Einsatzgruppen fucilano ~29.000 ebrei a Kiev in soli due giorni (29-30 settembre). Simili eccidi avvengono in tutta l\'Europa orientale.' },
+            { d: 'Autunno 1941', t: 'Camere a gas mobili (Gaswagen)', ph: 'holo', star: false, desc: 'I nazisti sviluppano camion sigillati dove i prigionieri venivano uccisi col gas di scarico. Soluzione intermedia tra le fucilazioni e i futuri campi di sterminio fissi.' },
+            { d: 'Dicembre 1941', t: 'Controffensiva sovietica a Mosca', ph: 'barb', star: true, desc: 'Come ai tempi di Napoleone, l\'inverno russo blocca i tedeschi. L\'Armata Rossa contrattacca e respinge i tedeschi da Mosca. Per la prima volta il Blitzkrieg fallisce.' },
+            { d: '7 dicembre 1941', t: 'Pearl Harbor', ph: 'pac', star: true, desc: 'L\'aviazione giapponese attacca a sorpresa la flotta USA: 8 corazzate affondate/danneggiate. Il giorno dopo gli USA dichiarano guerra al Giappone. Germania e Italia dichiarano guerra agli USA.' },
+            { d: 'Gennaio 1942', t: 'Conferenza di Wannsee', ph: 'holo', star: true, desc: 'Heydrich ed Eichmann pianificano la "soluzione finale": sterminio sistematico di ~11 milioni di ebrei. Si passa dalle eliminazioni caotiche a quelle programmate nei campi di sterminio industriale.' },
+            { d: '1942', t: 'Costruzione dei campi di sterminio', ph: 'holo', star: true, desc: 'Auschwitz (il più grande), Treblinka, Sobibór, Chelmno, Belzec, Ravensbrück… I deportati arrivano in vagoni piombati, subiscono selezione: i "non idonei al lavoro" vanno direttamente alle camere a gas.' },
+            { d: 'Giugno 1942', t: 'Battaglia delle Midway', ph: 'pac', star: true, desc: 'La marina USA distrugge quasi tutte le portaerei giapponesi. Svolta nel Pacifico: il Giappone perde l\'iniziativa strategica. Gli USA passano all\'offensiva.' },
+            { d: 'Estate 1942', t: 'Avanzata tedesca verso Stalingrado', ph: 'barb', star: false, desc: 'Hitler lancia l\'Operazione Blu verso i campi petroliferi del Caucaso. L\'ARMIR (230.000 italiani) è schierata sul Don. I tedeschi avanzano verso Stalingrado.' },
+            { d: '23 ott – 3 nov 1942', t: 'Seconda Battaglia di El Alamein', ph: 'turn', star: true, desc: 'Montgomery sconfigge l\'Afrika Korps di Rommel in Egitto. Fine della guerra in Nord Africa. La Libia è perduta per l\'Italia.' },
+            { d: 'Novembre 1942', t: 'Sbarco USA in Nordafrica', ph: 'turn', star: false, desc: 'Truppe USA guidate da Eisenhower sbarcano in Marocco e Algeria. Gli Alleati controllano tutto il Nord Africa nella primavera del 1943.' },
+            { d: '17 lug 1942 – 2 feb 1943', t: 'Battaglia di Stalingrado', ph: 'turn', star: true, desc: 'La 6ª armata tedesca (gen. Paulus) è accerchiata dall\'Armata Rossa (gen. Zukov). Combattimenti casa per casa per mesi. Paulus si arrende con 200.000 uomini.' },
+            { d: 'Aprile 1943', t: 'Rivolta del ghetto di Varsavia', ph: 'holo', star: true, desc: 'Quando i tedeschi cominciano a deportare gli ultimi 50.000 ebrei, i partigiani del ghetto resistono per quasi un mese. Il ghetto è raso al suolo.' },
+            { d: 'Gennaio 1943', t: 'Conferenza di Casablanca', ph: 'turn', star: false, desc: 'Roosevelt, Churchill e De Gaulle: la guerra continua fino alla resa totale e incondizionata dell\'Asse. Pianificato l\'attacco all\'Italia.' },
+            { d: '9-10 luglio 1943', t: 'Sbarco Alleato in Sicilia', ph: 'ita', star: true, desc: 'Gli anglo-americani sbarcano in Sicilia, apripista per l\'attacco all\'Italia continentale. Il fronte crolla rapidamente.' },
+            { d: '25 luglio 1943', t: 'Caduta di Mussolini', ph: 'ita', star: true, desc: 'Il Gran Consiglio del Fascismo vota la sfiducia a Mussolini. Il re Vittorio Emanuele III lo fa arrestare e nomina Badoglio capo del governo. Il Duce viene imprigionato sul Gran Sasso.' },
+            { d: '3/8 settembre 1943', t: 'Armistizio italiano', ph: 'ita', star: true, desc: 'Firmato il 3 settembre a Cassibile, reso pubblico l\'8 settembre. Il re e Badoglio fuggono a Brindisi lasciando l\'esercito senza ordini. Scatta il Piano Alarico: i tedeschi occupano il Centro-Nord. 600.000 italiani finiscono nei lager.' },
+            { d: 'Settembre 1943', t: 'Repubblica di Salò (RSI)', ph: 'ita', star: false, desc: 'Hitler libera Mussolini dal Gran Sasso e lo installa a Salò (lago di Garda) come capo della Repubblica Sociale Italiana, stato fantoccio tedesco.' },
+            { d: 'Nov-dic 1943', t: 'Conferenza di Teheran', ph: 'turn', star: false, desc: 'Roosevelt, Churchill e Stalin: pianificano il D-Day in Francia, concordano lo smembramento della Germania e l\'ingresso dell\'URSS nella guerra al Giappone.' },
+            { d: '1943-1944', t: 'Nasce la Resistenza italiana', ph: 'ita', star: true, desc: 'I CLN (Comitati di Liberazione Nazionale) coordinano 300.000 partigiani: Brigate Garibaldi (PCI), Giustizia e Libertà (PdA), Brigate Matteotti (PSIUP), Fiamme Verdi (cattolici). 35.000 caduti.' },
+            { d: '24 marzo 1944', t: 'Fosse Ardeatine', ph: 'ita', star: true, desc: 'I nazisti fucilano 335 civili e militari italiani come rappresaglia per l\'attentato di via Rasella (32 tedeschi uccisi). Una delle più gravi stragi naziste in Italia.' },
+            { d: 'Marzo 1944', t: 'Svolta di Salerno', ph: 'ita', star: false, desc: 'Togliatti (PCd\'I) convince il CLN a sostenere il re e Badoglio per battere prima il nazifascismo, rinviando la questione istituzionale a dopo la guerra.' },
+            { d: '6 giugno 1944', t: 'D-Day: Sbarco in Normandia', ph: 'adv', star: true, desc: 'Operazione Overlord guidata da Eisenhower: 5 spiagge, 4000 navi, 12.000 aerei. La più grande invasione navale della storia. Il fronte occidentale in Francia è aperto.' },
+            { d: '25 agosto 1944', t: 'Liberazione di Parigi', ph: 'adv', star: true, desc: 'L\'avanzata degli Alleati in Francia, con il contributo della Resistenza di De Gaulle, porta alla liberazione di Parigi. Entro fine estate tutta la Francia è libera.' },
+            { d: 'Agosto 1944', t: 'Rivolta di Varsavia', ph: 'adv', star: false, desc: 'I partigiani polacchi insorgono contro i nazisti. I sovietici rallentano deliberatamente per indebolire la resistenza nazionalista. La rivolta dura 2 mesi e viene repressa nel sangue.' },
+            { d: '20 luglio 1944', t: 'Attentato a Hitler', ph: 'adv', star: false, desc: 'Un gruppo di ufficiali dell\'esercito tenta di eliminare Hitler per negoziare la pace. L\'attentato fallisce. Segue una feroce repressione.' },
+            { d: 'Feb 1945', t: 'Conferenza di Yalta', ph: 'adv', star: true, desc: 'L\'ultimo incontro tra Stalin, Churchill e Roosevelt: decisioni fondamentali sugli assetti del dopoguerra, creazione dell\'ONU, ingresso dell\'URSS nella guerra al Giappone.' },
+            { d: 'Aprile 1945', t: 'Offensiva finale in Italia', ph: 'ita', star: false, desc: 'Sfondamento della Linea Gotica. Il 21 aprile è libera Bologna, il 24 Genova, il 25 Milano (insurrezione partigiana), il 27 Torino, il 28 Venezia.' },
+            { d: '25 aprile 1945', t: 'Liberazione d\'Italia', ph: 'vic', star: true, desc: 'I partigiani insorgono nelle grandi città del Nord. Il 28 aprile Mussolini è fucilato a Dongo insieme a Claretta Petacci. I cadaveri vengono appesi a piazzale Loreto, Milano.' },
+            { d: '30 aprile 1945', t: 'Suicidio di Hitler', ph: 'vic', star: true, desc: 'Hitler si suicida nel suo bunker sotterraneo di Berlino mentre i sovietici entrano nella capitale. Goebbels si suicida il giorno dopo con tutta la famiglia.' },
+            { d: '7 maggio 1945', t: 'Resa della Germania', ph: 'vic', star: true, desc: 'I rappresentanti dell\'esercito tedesco firmano la resa incondizionata a Reims, in Francia. La guerra in Europa è finita. I liberatori scoprono i campi di sterminio.' },
+            { d: '1943-1945', t: 'Le Foibe', ph: 'ita', star: false, desc: 'Le milizie di Tito gettano migliaia di italiani dell\'Istria e Dalmazia nelle foibe (crepacci carsici). Tra 5.000 e 10.000 vittime. ~300.000 italiani costretti all\'esodo giuliano-dalmata (1947).' },
+            { d: '6 agosto 1945', t: 'Bomba atomica su Hiroshima', ph: 'pac', star: true, desc: 'Un B-29 sgancia la prima bomba atomica della storia. In una frazione di secondo la città è distrutta. ~100.000 morti immediati e per effetti delle radiazioni.' },
+            { d: '9 agosto 1945', t: 'Bomba atomica su Nagasaki', ph: 'pac', star: true, desc: 'Seconda bomba atomica: ~100.000 vittime. Lo stesso giorno l\'URSS dichiara guerra al Giappone. La combinazione dei due colpi accelera la resa nipponica.' },
+            { d: '2 settembre 1945', t: 'Resa del Giappone – Fine SGM', ph: 'vic', star: true, desc: 'Il Giappone annuncia la resa il 15 agosto; la firma ufficiale avviene il 2 settembre sulla corazzata USS Missouri. La Seconda Guerra Mondiale è ufficialmente finita.' },
+            { d: '1945-1946', t: 'Processi di Norimberga', ph: 'vic', star: true, desc: '22 capi nazisti processati da un tribunale internazionale. Nasce il concetto di "crimini contro l\'umanità". 12 condanne a morte. Confermata la cifra di ~6 milioni di ebrei assassinati.' },
+            { d: 'Ottobre 1945', t: 'Fondazione dell\'ONU', ph: 'vic', star: true, desc: 'L\'Organizzazione delle Nazioni Unite riunisce i paesi del mondo per prevenire futuri conflitti. Consiglio di Sicurezza con 5 membri permanenti (USA, URSS, UK, Francia, Cina) e diritto di veto.' },
+            { d: '1944', t: 'Accordi di Bretton Woods', ph: 'vic', star: false, desc: '44 Stati stabiliscono il nuovo ordine economico mondiale. Il dollaro diventa moneta di riferimento. Nascono il FMI, la Banca Mondiale e il GATT (1947).' },
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DATA — SUMMARIES
+        // ═══════════════════════════════════════════════════════════════════
+        const SUMMARIES = [
+            `<h3>⚡ La Guerra in 10 righe</h3>
+<p>La <span class="kw">Seconda Guerra Mondiale</span> (1939–1945) fu scatenata dalla Germania nazista di <span class="kw">Hitler</span>, che con il <span class="kw">Blitzkrieg</span> conquistò Polonia (1939), Francia (1940) e tentò di invadere l'Inghilterra. Nel 1941 Hitler attaccò l'<span class="kw">URSS</span> (Operazione Barbarossa) e il <span class="kw">Giappone</span> attaccò Pearl Harbor trascinando gli USA nel conflitto. La guerra svoltò nel 1942-43 con le sconfitte di <span class="kw">El Alamein</span>, <span class="kw">Stalingrado</span> e Midway. In parallelo i nazisti sterminarono <span class="kw">~6 milioni di ebrei</span> (Olocausto). Il <span class="kw">D-Day</span> (6 giugno 1944) aprì il fronte occidentale. Hitler si suicidò il 30 aprile 1945; la Germania si arrese il 7 maggio. Il Giappone si arrese dopo le bombe atomiche su <span class="kw">Hiroshima</span> e <span class="kw">Nagasaki</span> (agosto 1945). Nacquero <span class="kw">ONU</span> e Bretton Woods.</p>`,
+
+            `<h3>1. Lo Scoppio del Conflitto</h3>
+<p>Nel <span class="kw">maggio 1939</span> Germania e Italia firmano il <span class="kw">Patto d'Acciaio</span>. Il <span class="kw">23 agosto 1939</span> Hitler e Stalin firmano il <span class="kw">Patto Molotov-Ribbentrop</span> con clausole segrete sulla spartizione della Polonia. Il <span class="kw">1° settembre 1939</span> la Germania invade la Polonia col <span class="kw">Blitzkrieg</span>. Il <span class="kw">3 settembre</span> Francia e GB dichiarano guerra ma rimangono passive (<em>drôle de guerre</em>).</p>
+<h3>2. La Conquista dell'Europa Occidentale</h3>
+<p>Primavera 1940: tedeschi occupano Danimarca e Norvegia, poi invadono Belgio e Paesi Bassi. Sfondano dalle <span class="kw">Ardenne</span>, aggirando la Linea Maginot. L'<span class="kw">Operazione Dynamo</span> salva 338.000 soldati a Dunkerque. Il <span class="kw">14 giugno</span> cade Parigi. Nasce il governo di <span class="kw">Vichy</span> (Pétain). La <span class="kw">Battaglia d'Inghilterra</span> (lug-ott 1940) fallisce per il radar britannico e la RAF.</p>
+<h3>3. La Guerra Parallela dell'Italia</h3>
+<p>L'<span class="kw">Italia</span> entra in guerra il <span class="kw">10 giugno 1940</span>. Le campagne in Africa e Grecia sono disastrose. <span class="kw">Rommel</span> e l'Afrika Korps salvano gli italiani. I tedeschi intervengono anche nei Balcani (aprile 1941).</p>
+<h3>4. Il Fronte Orientale</h3>
+<p>Il <span class="kw">22 giugno 1941</span> scatta l'<span class="kw">Operazione Barbarossa</span>. A <span class="kw">dicembre 1941</span> l'Armata Rossa contrattacca da Mosca. La <span class="kw">Battaglia di Stalingrado</span> (lug 1942 – feb 1943) è la svolta: Paulus si arrende con 200.000 uomini.</p>
+<h3>5. L'Olocausto</h3>
+<p>Dalla <span class="kw">Conferenza di Wannsee</span> (gennaio 1942) lo sterminio degli ebrei diventa sistematico. <span class="kw">~6 milioni di ebrei</span> assassinati, più rom, omosessuali, prigionieri politici. Auschwitz è il campo più grande.</p>
+<h3>6. La Svolta e la Vittoria</h3>
+<p>Nel 1942-43: El Alamein, Stalingrado, sbarco in Africa. Il <span class="kw">D-Day</span> apre il fronte occidentale il 6 giugno 1944. Il 25 aprile 1945 l'Italia è liberata. Il 7 maggio la Germania si arrende. Le bombe atomiche su <span class="kw">Hiroshima</span> (6 agosto) e <span class="kw">Nagasaki</span> (9 agosto) forzano la resa giapponese il <span class="kw">2 settembre 1945</span>.</p>`,
+
+            `<h3>1. Premesse e Patto di Non Aggressione</h3>
+<p>Nel <span class="kw">maggio 1939</span> Italia e Germania firmano il <span class="kw">Patto d'Acciaio</span>. Hitler non aspettò: in <span class="kw">agosto 1939</span> stipulò il <span class="kw">Patto Molotov-Ribbentrop</span>, garantendosi le spalle a est e concordando la spartizione della Polonia e la sfera di influenza sovietica sui Paesi Baltici.</p>
+<h3>2. Blitzkrieg in Polonia</h3>
+<p>Il <span class="kw">1° settembre 1939</span>: panzer e aerei sfondano il fronte polacco. La Polonia cade in tre settimane. Il <span class="kw">3 settembre</span> Francia e GB dichiarano guerra ma rimangono passive: inizia la <span class="kw">drôle de guerre</span>. I sovietici occupano le province orientali.</p>
+<h3>3. L'Espansione a Nord e Ovest</h3>
+<p>Primavera 1940: tedeschi occupano <span class="kw">Danimarca e Norvegia</span>. Il <span class="kw">10 maggio</span> invadono Belgio e Paesi Bassi. Il colpo principale arriva dalle <span class="kw">Ardenne</span>. L'<span class="kw">Operazione Dynamo</span> (27 mag–4 giu) salva 338.000 soldati con 800 imbarcazioni. Il <span class="kw">14 giugno</span> Parigi cade. Il <span class="kw">22 giugno</span> armistizio a Compiègne: nasce il governo di <span class="kw">Vichy</span> (Pétain). <span class="kw">De Gaulle</span> organizza la Francia Libera da Londra.</p>
+<h3>4. Battaglia d'Inghilterra e Atlantico</h3>
+<p>Luglio-ottobre 1940: la Luftwaffe bombarda le città britanniche. Il <span class="kw">radar</span> permette alla RAF di intercettare i tedeschi: Luftwaffe perde ~2000 aerei vs ~1000 della RAF. Hitler rinuncia all'invasione. Nell'Atlantico gli <span class="kw">U-Boote</span> minacciano i rifornimenti alla GB.</p>
+<h3>5. L'Italia in Guerra</h3>
+<p>Mussolini entra in guerra il <span class="kw">10 giugno 1940</span>. Campagne disastrose in Africa e Grecia. <span class="kw">Rommel</span> (Afrika Korps) salva gli italiani. Il Corno d'Africa italiano è perduto nel <span class="kw">maggio 1941</span>. I tedeschi intervengono anche nei Balcani (aprile 1941).</p>
+<h3>6. Operazione Barbarossa</h3>
+<p>Il <span class="kw">22 giugno 1941</span>: 3 milioni di soldati invadono l'URSS. Stalin organizza la <span class="kw">Grande guerra patriottica</span>. L'inverno russo blocca i tedeschi: a dicembre l'Armata Rossa contrattacca. Nelle zone occupate gli Einsatzgruppen compiono stragi di massa (<span class="kw">Babij Jar</span>: ~29.000 ebrei in 2 giorni).</p>
+<h3>7. L'Olocausto</h3>
+<p>La <span class="kw">Conferenza di Wannsee</span> (gennaio 1942): sterminio sistematico pianificato da Heydrich ed Eichmann. Si passa dalle fucilazioni ai campi di sterminio industriale (<span class="kw">Auschwitz</span>, Treblinka, Sobibór…). <span class="kw">~6 milioni di ebrei</span> assassinati. La <span class="kw">Rivolta del ghetto di Varsavia</span> (aprile 1943) è l'episodio più noto della resistenza ebraica.</p>
+<h3>8. Gli USA in Guerra e la Svolta</h3>
+<p>Il <span class="kw">7 dicembre 1941</span> il Giappone attacca <span class="kw">Pearl Harbor</span>. Gli USA entrano in guerra. Nel <span class="kw">giugno 1942</span> la battaglia delle <span class="kw">Midway</span> inverte le sorti nel Pacifico. <span class="kw">El Alamein</span> (nov 1942) è la svolta in Africa. <span class="kw">Stalingrado</span> (lug 1942–feb 1943): la 6ª armata di Paulus accerchiata si arrende.</p>
+<h3>9. La Guerra in Italia e la Resistenza</h3>
+<p>Lo sbarco in Sicilia (<span class="kw">9-10 luglio 1943</span>) porta alla caduta di Mussolini (<span class="kw">25 luglio</span>). L'armistizio dell'<span class="kw">8 settembre 1943</span>: i tedeschi occupano il Centro-Nord, 600.000 italiani nei lager. Mussolini fonda la <span class="kw">Repubblica di Salò</span>. I CLN coordinano 300.000 partigiani. La liberazione del Nord: <span class="kw">25 aprile 1945</span>.</p>
+<h3>10. Fine della Guerra e Ordine Mondiale</h3>
+<p>Il <span class="kw">D-Day</span> (6 giugno 1944) apre il fronte occidentale. <span class="kw">Hitler si suicida</span> il 30 aprile 1945. La <span class="kw">Germania si arrende</span> il 7 maggio 1945. Le bombe atomiche su <span class="kw">Hiroshima</span> (6 agosto) e <span class="kw">Nagasaki</span> (9 agosto) forzano la resa del Giappone il <span class="kw">2 settembre 1945</span>. Nascono <span class="kw">ONU</span> e <span class="kw">Bretton Woods</span>.</p>`,
+
+            `<h3>🎯 Date da Sapere Assolutamente</h3>
+<ul>
+<li><span class="kw">Mag 1939</span> – Patto d'Acciaio (Germania-Italia)</li>
+<li><span class="kw">Ago 1939</span> – Patto Molotov-Ribbentrop</li>
+<li><span class="kw">1 set. 1939</span> – Invasione della Polonia → inizio SGM</li>
+<li><span class="kw">3 set. 1939</span> – Francia e GB dichiarano guerra</li>
+<li><span class="kw">27 mag–4 giu 1940</span> – Operazione Dynamo (Dunkerque)</li>
+<li><span class="kw">10 giu 1940</span> – Italia entra in guerra</li>
+<li><span class="kw">14 giu 1940</span> – Caduta di Parigi</li>
+<li><span class="kw">22 giu 1940</span> – Armistizio di Compiègne</li>
+<li><span class="kw">Lug–Ott 1940</span> – Battaglia d'Inghilterra</li>
+<li><span class="kw">22 giu 1941</span> – Operazione Barbarossa</li>
+<li><span class="kw">7 dic 1941</span> – Pearl Harbor → USA in guerra</li>
+<li><span class="kw">Gen 1942</span> – Conferenza di Wannsee ("soluzione finale")</li>
+<li><span class="kw">Giu 1942</span> – Battaglia delle Midway (svolta Pacifico)</li>
+<li><span class="kw">23 ott–3 nov 1942</span> – Seconda battaglia di El Alamein</li>
+<li><span class="kw">17 lug 1942–2 feb 1943</span> – Battaglia di Stalingrado</li>
+<li><span class="kw">Aprile 1943</span> – Rivolta del ghetto di Varsavia</li>
+<li><span class="kw">25 lug 1943</span> – Caduta di Mussolini</li>
+<li><span class="kw">8 set. 1943</span> – Armistizio italiano</li>
+<li><span class="kw">24 mar 1944</span> – Fosse Ardeatine</li>
+<li><span class="kw">6 giu 1944</span> – D-Day (Sbarco in Normandia)</li>
+<li><span class="kw">25 apr 1945</span> – Liberazione d'Italia</li>
+<li><span class="kw">28 apr 1945</span> – Morte di Mussolini (Dongo)</li>
+<li><span class="kw">30 apr 1945</span> – Suicidio di Hitler</li>
+<li><span class="kw">7 mag 1945</span> – Resa della Germania (Reims)</li>
+<li><span class="kw">6 ago 1945</span> – Bomba su Hiroshima</li>
+<li><span class="kw">9 ago 1945</span> – Bomba su Nagasaki</li>
+<li><span class="kw">2 set. 1945</span> – Resa del Giappone → fine SGM</li>
+</ul>
+<h3>🔑 Concetti Chiave</h3>
+<ul>
+<li><span class="kw">Blitzkrieg</span>: guerra lampo con panzer + aerei concentrati per sfondare il fronte</li>
+<li><span class="kw">Drôle de guerre</span>: "strana guerra" – fronte occidentale immobile ott 1939-mag 1940</li>
+<li><span class="kw">Op. Dynamo</span>: evacuazione di Dunkerque – 338.000 soldati salvati con 800 imbarcazioni</li>
+<li><span class="kw">Governo di Vichy</span>: Francia collaborazionista guidata da Pétain</li>
+<li><span class="kw">Shoah / Olocausto</span>: ~6 milioni di ebrei assassinati con la "soluzione finale"</li>
+<li><span class="kw">Wannsee (gen. 1942)</span>: pianificazione industriale dello sterminio</li>
+<li><span class="kw">Op. Barbarossa</span>: invasione URSS, 22 giu 1941 – 3 milioni di soldati</li>
+<li><span class="kw">Grande guerra patriottica</span>: come Stalin inquadrò la resistenza all'invasione</li>
+<li><span class="kw">Spirito di Dunkerque</span>: simbolo della resistenza britannica e del coraggio civile</li>
+<li><span class="kw">Repubblica di Salò (RSI)</span>: stato fantoccio di Mussolini nel Nord Italia 1943-45</li>
+<li><span class="kw">CLN</span>: Comitati di Liberazione Nazionale – coordinamento della Resistenza italiana</li>
+<li><span class="kw">Svolta di Salerno</span>: Togliatti appoggia il re per sconfiggere prima il nazifascismo</li>
+<li><span class="kw">Kamikaze</span>: piloti giapponesi suicidi ("vento divino"), usati dal novembre 1944</li>
+<li><span class="kw">Progetto Manhattan</span>: sviluppo bomba atomica a Los Alamos (Oppenheimer + Fermi)</li>
+<li><span class="kw">Foibe</span>: massacri di italiani in Istria da milizie di Tito (5.000-10.000 vittime)</li>
+<li><span class="kw">Bretton Woods</span>: dollaro = moneta internazionale; nascita FMI, Banca Mondiale, GATT</li>
+<li><span class="kw">ONU (1945)</span>: 5 membri permanenti con diritto di veto nel Consiglio di Sicurezza</li>
+</ul>
+<h3>👥 Personaggi Essenziali</h3>
+<ul>
+<li><span class="kw">Hitler</span> – Führer: scatena la guerra, ordina l'Olocausto, si suicida il 30/4/1945</li>
+<li><span class="kw">Mussolini</span> – Duce: entra in guerra il 10/6/1940, cade il 25/7/1943, fucilato il 28/4/1945</li>
+<li><span class="kw">Churchill</span> – Premier britannico: "Blood, toil, tears and sweat", tiene la GB nella guerra</li>
+<li><span class="kw">Roosevelt</span> – Presidente USA: legge Affitti e Prestiti, Carta Atlantica, muore apr 1945</li>
+<li><span class="kw">Stalin</span> – Dittatore sovietico: ~27 milioni di morti, Grande guerra patriottica</li>
+<li><span class="kw">Rommel</span> – "Volpe del deserto": Afrika Korps, sconfitto a El Alamein</li>
+<li><span class="kw">Eisenhower</span> – Comandante alleato: sbarco in Nordafrica, D-Day, poi presidente USA</li>
+<li><span class="kw">Paulus</span> – Si arrende a Stalingrado il 2/2/1943 con 200.000 uomini</li>
+<li><span class="kw">Zukov</span> – Il miglior generale sovietico: Mosca, Stalingrado, Berlino</li>
+<li><span class="kw">De Gaulle</span> – Francia Libera da Londra, libera Parigi il 25/8/1944</li>
+</ul>`
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DATA — QUIZ GENERALE
+        // ═══════════════════════════════════════════════════════════════════
+        const QUIZ_G = [
+            { q: 'Che cos\'è il Blitzkrieg?', opts: ['Guerra lampo con panzer e aerei concentrati', 'Guerra di trincea difensiva', 'Attacco chimico con gas', 'Piano di invasione della Gran Bretagna'], a: 0, diff: 'f', exp: 'Il Blitzkrieg consisteva nel concentrare carri armati (panzer) e aerei in pochi punti per sfondare il fronte e avanzare rapidamente in profondità, aggirando il nemico.' },
+            { q: 'Quando la Germania invase la Polonia?', opts: ['1 settembre 1939', '3 settembre 1939', '1 settembre 1940', '23 agosto 1939'], a: 0, diff: 'f', exp: 'Il 1° settembre 1939 Hitler ordinò l\'invasione della Polonia, che scatenò la dichiarazione di guerra di Francia e Gran Bretagna il 3 settembre.' },
+            { q: 'Cosa prevedevano le clausole segrete del Patto Molotov-Ribbentrop?', opts: ['Spartizione della Polonia e sfera di influenza sovietica sui Baltici', 'Scambio di prigionieri di guerra', 'Alleanza contro la Gran Bretagna', 'Cessione dei Sudeti alla Germania'], a: 0, diff: 'm', exp: 'Le clausole segrete prevedevano la spartizione della Polonia e il riconoscimento di una zona di influenza sovietica su Estonia, Lettonia e Lituania.' },
+            { q: 'Quanti soldati furono salvati dall\'Operazione Dynamo?', opts: ['338.000', '150.000', '500.000', '75.000'], a: 0, diff: 'f', exp: 'Grazie a 800 imbarcazioni (molte civili) furono salvate circa 338.000 soldati tra britannici, francesi e belgi, in operazione dal 27 maggio al 4 giugno 1940.' },
+            { q: 'Quale strumento tecnologico permise alla RAF di vincere la Battaglia d\'Inghilterra?', opts: ['Radar', 'Missili V2', 'Gas nervini', 'Aerei a reazione'], a: 0, diff: 'f', exp: 'Il radar permetteva di intercettare gli aerei tedeschi in anticipo, dando alla RAF un vantaggio tattico decisivo. La Luftwaffe perse quasi il doppio degli aerei britannici.' },
+            { q: 'Chi presiedette il governo collaborazionista di Vichy?', opts: ['Maresciallo Pétain', 'Generale De Gaulle', 'Pierre Laval', 'Georges Clemenceau'], a: 0, diff: 'f', exp: 'Il maresciallo Philippe Pétain, eroe della Prima guerra mondiale, presiedette il governo di Vichy che governò la Francia non occupata dai tedeschi.' },
+            { q: 'Qual era il nome in codice dell\'invasione tedesca dell\'URSS?', opts: ['Operazione Barbarossa', 'Operazione Leone Marino', 'Operazione Dynamo', 'Operazione Overlord'], a: 0, diff: 'f', exp: 'L\'Operazione Barbarossa (dal nome dell\'imperatore medievale Federico I Barbarossa) fu lanciata il 22 giugno 1941 con 3 milioni di soldati tedeschi.' },
+            { q: 'Quando avvenne l\'attacco giapponese a Pearl Harbor?', opts: ['7 dicembre 1941', '7 dicembre 1942', '7 ottobre 1941', '11 dicembre 1941'], a: 0, diff: 'f', exp: 'Il 7 dicembre 1941 l\'aviazione giapponese attaccò la flotta USA. 8 corazzate affondate/danneggiate. Il giorno dopo gli USA dichiararono guerra al Giappone.' },
+            { q: 'Cosa fu pianificato alla Conferenza di Wannsee?', opts: ['Lo sterminio sistematico degli ebrei europei', 'L\'invasione dell\'Inghilterra', 'La spartizione dell\'Africa', 'Il trattato di pace con la Gran Bretagna'], a: 0, diff: 'm', exp: 'Nel gennaio 1942 Heydrich ed Eichmann pianificarono la "soluzione finale": lo sterminio sistematico di tutti gli ebrei d\'Europa.' },
+            { q: 'Quale fu la svolta decisiva sul fronte orientale nel 1942-43?', opts: ['Battaglia di Stalingrado', 'Operazione Barbarossa', 'Battaglia di El Alamein', 'Liberazione di Mosca'], a: 0, diff: 'f', exp: 'La Battaglia di Stalingrado (luglio 1942–febbraio 1943) si concluse con la resa della 6ª armata tedesca di Paulus con 200.000 uomini. Fu la grande svolta della guerra.' },
+            { q: 'Cosa significa "drôle de guerre"?', opts: ['Strana guerra o guerra farsa', 'Guerra difficile', 'Guerra dimenticata', 'Guerra notturna'], a: 0, diff: 'm', exp: 'I francesi chiamarono così il periodo ottobre 1939–maggio 1940 in cui sul fronte occidentale non accadeva nulla nonostante le dichiarazioni di guerra.' },
+            { q: 'Chi era Rommel?', opts: ['Generale tedesco, la "Volpe del deserto"', 'Comandante dei sommergibili tedeschi', 'Capo delle SS', 'Generale che firmò la resa di Stalingrado'], a: 0, diff: 'f', exp: 'Erwin Rommel guidava l\'Afrika Korps in Nord Africa. Era noto per le azioni rapide e sorprendenti, da cui il soprannome "Volpe del deserto".' },
+            { q: 'Quando l\'Italia dichiarò guerra?', opts: ['10 giugno 1940', '3 settembre 1939', '1 settembre 1939', '28 ottobre 1940'], a: 0, diff: 'f', exp: 'Mussolini annunciò l\'entrata in guerra il 10 giugno 1940 dal balcone di Palazzo Venezia, quando la Francia stava già per capitolare.' },
+            { q: 'Qual era il governo fantoccio fondato da Mussolini nel 1943?', opts: ['Repubblica Sociale Italiana (RSI), con sede a Salò', 'Stato fascista corporativo', 'Governo di concordato', 'Repubblica di Roma'], a: 0, diff: 'm', exp: 'La Repubblica Sociale Italiana (RSI), con sede a Salò sul lago di Garda, fu fondata da Mussolini dopo la sua liberazione da parte dei tedeschi nel settembre 1943.' },
+            { q: 'Cosa accadde l\'8 settembre 1943?', opts: ['Annuncio pubblico dell\'armistizio italiano', 'Invasione della Sicilia', 'Caduta di Mussolini', 'Sbarco di Anzio'], a: 0, diff: 'm', exp: 'L\'8 settembre 1943 l\'armistizio (firmato il 3 a Cassibile) fu reso pubblico. Il re e Badoglio fuggirono a Brindisi lasciando l\'esercito senza ordini.' },
+            { q: 'Cosa sono le Brigate Garibaldi?', opts: ['Formazioni partigiane comuniste (fazzoletto rosso)', 'Polizia della RSI', 'Truppe dell\'ARMIR', 'Unità navali italiane'], a: 0, diff: 'm', exp: 'Le Brigate Garibaldi, contraddistinte dal fazzoletto rosso, erano le formazioni partigiane vicine al Partito Comunista Italiano (PCI).' },
+            { q: 'Cos\'è la "soluzione finale"?', opts: ['Il piano nazista di sterminio degli ebrei', 'L\'operazione di invasione della Gran Bretagna', 'La resa della Germania', 'Il piano di occupazione dell\'URSS'], a: 0, diff: 'f', exp: 'La "soluzione finale" era il progetto di sterminio sistematico dell\'intera popolazione ebraica europea, pianificato alla Conferenza di Wannsee nel gennaio 1942.' },
+            { q: 'Quando avvenne il D-Day?', opts: ['6 giugno 1944', '6 giugno 1943', '25 luglio 1943', '8 settembre 1943'], a: 0, diff: 'f', exp: 'Il 6 giugno 1944 l\'Operazione Overlord guidata da Eisenhower: 5 spiagge, 4000 navi, 12.000 aerei. La più grande invasione navale della storia.' },
+            { q: 'Quante vittime ebraiche causò l\'Olocausto?', opts: ['~6 milioni', '~1 milione', '~3 milioni', '~10 milioni'], a: 0, diff: 'f', exp: 'Il Processo di Norimberga stabilì la cifra di circa 6 milioni di ebrei assassinati nella "soluzione finale", poi confermata dagli studi storici.' },
+            { q: 'Cosa accadde il 25 aprile 1945?', opts: ['Insurrezione partigiana nel Nord Italia', 'Firma dell\'armistizio tedesco', 'Fucilazione di Mussolini', 'Sbarco in Sicilia'], a: 0, diff: 'f', exp: 'Il 25 aprile 1945 i partigiani insorsero nelle grandi città del Nord. È oggi la Festa della Liberazione.' },
+            { q: 'Cosa sono le foibe?', opts: ['Crepacci rocciosi in Istria dove furono gettati italiani', 'Forni crematori dei lager', 'Bunker tedeschi in Italia', 'Gallerie della Linea Gotica'], a: 0, diff: 'm', exp: 'Le foibe sono profondi crepacci carsici in cui le milizie di Tito gettarono tra 5.000 e 10.000 italiani dell\'Istria e Dalmazia tra il 1943 e il 1945.' },
+            { q: 'Chi guidò il Progetto Manhattan?', opts: ['Robert Oppenheimer (con Enrico Fermi)', 'Albert Einstein', 'Werner Heisenberg', 'Nikola Tesla'], a: 0, diff: 'm', exp: 'Il Progetto Manhattan, sviluppato nei laboratori di Los Alamos, era guidato dal fisico Oppenheimer. Il fisico italiano Enrico Fermi vi partecipò attivamente.' },
+            { q: 'Qual è la "Svolta di Salerno"?', opts: ['Togliatti appoggia il re per battere prima il nazifascismo', 'Lo sbarco alleato a Salerno', 'La liberazione di Salerno', 'La firma dell\'armistizio a Salerno'], a: 0, diff: 'd', exp: 'Nel marzo 1944 Togliatti (PCd\'I) convinse i partiti del CLN a sostenere il governo del re e Badoglio per sconfiggere i nazifascisti, rinviando la questione istituzionale al dopoguerra.' },
+            { q: 'Chi erano gli Einsatzgruppen?', opts: ['Unità SS per rastrellamento e sterminio di ebrei', 'Piloti della Luftwaffe', 'Sommergibilisti tedeschi', 'Truppe di occupazione italiane'], a: 0, diff: 'm', exp: 'Gli Einsatzgruppen erano unità operative SS-Polizia che accompagnavano l\'esercito nell\'Europa orientale per fucilare ebrei e oppositori. A Babij Jar (Kiev) uccisero ~29.000 ebrei in 2 giorni.' },
+            { q: 'Cosa stabilirono gli Accordi di Bretton Woods?', opts: ['Il dollaro come moneta di riferimento e nascita di FMI e Banca Mondiale', 'La resa incondizionata della Germania', 'La spartizione dell\'Europa', 'Il confine della Polonia'], a: 0, diff: 'd', exp: 'Gli accordi di Bretton Woods (1944) istituirono un sistema monetario con il dollaro come moneta di riferimento, e crearono il FMI, la Banca Mondiale e il GATT (1947).' },
+            { q: 'Quando Hitler si suicidò?', opts: ['30 aprile 1945', '7 maggio 1945', '28 aprile 1945', '2 maggio 1945'], a: 0, diff: 'f', exp: 'Adolf Hitler si suicidò nel suo bunker di Berlino il 30 aprile 1945, mentre i sovietici stavano per entrare nella capitale.' },
+            { q: 'Cosa fu l\'ARMIR?', opts: ['Armata Italiana in Russia (230.000 soldati)', 'Aeronautica militare italiana', 'Alleanza Resistenza Meridionale', 'Armata di Riserva'], a: 0, diff: 'm', exp: 'L\'ARMIR (Armata Italiana in Russia) era composta da oltre 230.000 soldati inviati da Mussolini sul fronte orientale. Venne distrutta nella disfatta sul Don nel 1942-43.' },
+            { q: 'Dove fu firmata la resa della Germania?', opts: ['A Reims (Francia) il 7 maggio 1945', 'A Berlino il 30 aprile 1945', 'A Norimberga l\'8 maggio 1945', 'A Potsdam il 7 maggio 1945'], a: 0, diff: 'm', exp: 'I rappresentanti dell\'esercito tedesco firmarono la resa incondizionata a Reims, in Francia, il 7 maggio 1945.' },
+            { q: 'Quale paese aveva la più alta percentuale di ebrei sterminati?', opts: ['Paesi Bassi (91,5%)', 'Polonia (87,7%)', 'Ungheria (73,9%)', 'Iugoslavia (89%)'], a: 0, diff: 'd', exp: 'I Paesi Bassi ebbero la percentuale più alta: il 91,5% degli ebrei presenti fu sterminato. La Polonia l\'87,7%, la Iugoslavia l\'89%, l\'Ungheria il 73,9%.' },
+            { q: 'Chi progettò l\'attacco a Pearl Harbor?', opts: ['Ammiraglio Isoroku Yamamoto', 'Generale Tojo', 'Imperatore Hirohito', 'Ammiraglio Nagumo'], a: 0, diff: 'd', exp: 'L\'ammiraglio Isoroku Yamamoto progettò l\'attacco a Pearl Harbor, convinto che solo la distruzione totale della flotta USA avrebbe permesso al Giappone di trattare da una posizione di forza.' },
+            { q: 'Quanto durò l\'assedio di Leningrado?', opts: ['872 giorni (settembre 1941 – gennaio 1944)', '365 giorni', '540 giorni', '200 giorni'], a: 0, diff: 'd', exp: 'L\'assedio di Leningrado durò 872 giorni (settembre 1941–gennaio 1944). Circa 700.000 abitanti morirono, la maggior parte di fame. La città non cadde mai.' },
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DATA — QUIZ VERO/FALSO
+        // ═══════════════════════════════════════════════════════════════════
+        const QUIZ_VF = [
+            { s: 'Il Patto d\'Acciaio fu firmato nel maggio 1939.', a: true, exp: 'Corretto. Germania e Italia firmarono il Patto d\'Acciaio nel maggio 1939. Mussolini ottenne la promessa che la guerra non sarebbe iniziata prima di qualche anno, ma Hitler non la mantenne.' },
+            { s: 'Il Patto Molotov-Ribbentrop fu firmato nel giugno 1939.', a: false, exp: 'Falso. Il patto fu firmato in agosto 1939, non in giugno. Era il patto di non aggressione tra Germania e URSS con clausole segrete sulla spartizione della Polonia.' },
+            { s: 'La Polonia fu conquistata dai tedeschi in meno di tre settimane.', a: true, exp: 'Corretto. Il Blitzkrieg fu travolgente: la resistenza polacca fu annientata in meno di tre settimane dall\'inizio dell\'invasione (1° settembre 1939).' },
+            { s: 'L\'Operazione Dynamo evacuò circa 338.000 soldati da Dunkerque.', a: true, exp: 'Corretto. L\'Operazione Dynamo (27 maggio–4 giugno 1940) salvò circa 338.000 soldati (britannici, francesi e belgi) grazie a 800 imbarcazioni, molte delle quali civili.' },
+            { s: 'Il governo di Vichy fu presieduto dal generale De Gaulle.', a: false, exp: 'Falso. Il governo di Vichy fu presieduto dal maresciallo Philippe Pétain. De Gaulle rifiutò la resa e organizzò la Francia Libera da Londra.' },
+            { s: 'Il radar fu uno strumento decisivo per la vittoria britannica nella Battaglia d\'Inghilterra.', a: true, exp: 'Corretto. Il radar permetteva alla RAF di intercettare i tedeschi in anticipo, dando un notevole vantaggio tattico. La Luftwaffe perse quasi il doppio degli aerei britannici.' },
+            { s: 'L\'Operazione Barbarossa fu lanciata il 22 giugno 1941.', a: true, exp: 'Corretto. Il 22 giugno 1941 tre milioni di soldati tedeschi invasero l\'URSS. L\'attacco colse Stalin di sorpresa nonostante i segnali di un\'invasione imminente.' },
+            { s: 'La Conferenza di Wannsee si tenne nel gennaio 1942.', a: true, exp: 'Corretto. Il 20 gennaio 1942, nella villa sul lago di Wannsee a Berlino, Heydrich ed Eichmann pianificarono la "soluzione finale": lo sterminio sistematico degli ebrei europei.' },
+            { s: 'Auschwitz era il più piccolo dei campi di sterminio nazisti.', a: false, exp: 'Falso. Auschwitz era il più grande campo di sterminio. Oltre ad Auschwitz esistevano Treblinka, Sobibór, Chelmno, Belzec, Ravensbrück e altri campi.' },
+            { s: 'Il Giappone attaccò Pearl Harbor il 7 dicembre 1941.', a: true, exp: 'Corretto. Il 7 dicembre 1941 l\'aviazione giapponese attaccò a sorpresa la flotta USA a Pearl Harbor. Il giorno dopo gli USA dichiararono guerra al Giappone.' },
+            { s: 'La Battaglia di Stalingrado durò dal luglio 1942 al febbraio 1943.', a: true, exp: 'Corretto. I combattimenti durarono dal 17 luglio 1942 al 2 febbraio 1943, quando il generale Paulus si arrese con circa 200.000 uomini.' },
+            { s: 'Mussolini fu destituito il 25 luglio 1943 dal Gran Consiglio del Fascismo.', a: true, exp: 'Corretto. Il 25 luglio 1943 il Gran Consiglio del Fascismo votò la sfiducia a Mussolini. Il re lo fece arrestare e nominò Badoglio come nuovo capo del governo.' },
+            { s: 'L\'armistizio italiano fu reso pubblico il 3 settembre 1943.', a: false, exp: 'Falso. L\'armistizio fu firmato il 3 settembre a Cassibile (Sicilia), ma fu reso noto all\'opinione pubblica solo l\'8 settembre 1943.' },
+            { s: 'La Repubblica Sociale Italiana aveva sede a Milano.', a: false, exp: 'Falso. La RSI aveva sede a Salò, sul lago di Garda. Per questo era chiamata anche "Repubblica di Salò".' },
+            { s: 'Il D-Day fu il 6 giugno 1944.', a: true, exp: 'Corretto. Il 6 giugno 1944 scattò l\'Operazione Overlord guidata da Eisenhower: 5 spiagge normanne, 4000 navi da guerra, 12.000 aerei. La più grande invasione navale della storia.' },
+            { s: 'Hitler si suicidò il 30 aprile 1945.', a: true, exp: 'Corretto. Adolf Hitler si suicidò nel bunker sotterraneo di Berlino il 30 aprile 1945, con i sovietici già alle porte della città.' },
+            { s: 'La bomba atomica su Hiroshima fu sganciata il 6 agosto 1945.', a: true, exp: 'Corretto. Il 6 agosto 1945 un bombardiere B-29 sganciò la prima bomba atomica della storia su Hiroshima. Il 9 agosto toccò a Nagasaki.' },
+            { s: 'L\'ONU fu fondata nel 1944.', a: false, exp: 'Falso. L\'ONU fu fondata nell\'ottobre 1945, dopo la fine della guerra.' },
+            { s: 'La Battaglia delle Midway fu una vittoria giapponese.', a: false, exp: 'Falso. La Battaglia delle Midway (giugno 1942) fu una schiacciante vittoria americana. I giapponesi persero quasi tutte le loro portaerei, invertendo le sorti del conflitto nel Pacifico.' },
+            { s: 'Il ghetto di Varsavia era il più grande ghetto ebraico nell\'Europa occupata.', a: true, exp: 'Corretto. Il ghetto di Varsavia, istituito nell\'estate del 1940, ospitò fino a 500.000 persone.' },
+            { s: 'Rommel era soprannominato "la volpe del deserto".', a: true, exp: 'Corretto. Erwin Rommel, comandante dell\'Afrika Korps, era noto per le sue azioni rapide e sorprendenti in Nord Africa, che gli valse il soprannome "Volpe del deserto".' },
+            { s: 'La Germania firmò la resa a Berlino.', a: false, exp: 'Falso. La resa incondizionata fu firmata a Reims, in Francia, il 7 maggio 1945.' },
+            { s: 'Jan Karski fornì i primi resoconti dell\'Olocausto ai governi alleati.', a: true, exp: 'Corretto. Jan Karski, resistente polacco, fornì dettagliati resoconti dello sterminio ai governi alleati e al presidente Roosevelt. La sua denuncia rimase però in gran parte inascoltata.' },
+            { s: 'La Carta Atlantica fu firmata nell\'agosto 1941.', a: true, exp: 'Corretto. Nell\'agosto 1941 Roosevelt e Churchill si incontrarono a Terranova e firmarono la Carta Atlantica, che delineava i principi del futuro ordine internazionale.' },
+            { s: 'L\'esodo giuliano-dalmata coinvolse circa 300.000 italiani.', a: true, exp: 'Corretto. Quando nel 1947 Istria e Dalmazia furono annesse alla Iugoslavia, circa 300.000 italiani (il 90% di chi abitava in quelle aree) furono costretti all\'esodo.' },
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DATA — QUIZ DATE
+        // ═══════════════════════════════════════════════════════════════════
+        const QUIZ_DATE = [
+            { date: '1 settembre 1939', ev: 'Invasione della Polonia' },
+            { date: '3 settembre 1939', ev: 'Francia e GB dichiarano guerra alla Germania' },
+            { date: 'Agosto 1939', ev: 'Patto Molotov-Ribbentrop' },
+            { date: 'Maggio 1939', ev: 'Patto d\'Acciaio tra Italia e Germania' },
+            { date: '10 giugno 1940', ev: 'Italia entra in guerra' },
+            { date: '14 giugno 1940', ev: 'Caduta di Parigi' },
+            { date: '22 giugno 1940', ev: 'Armistizio di Compiègne (resa della Francia)' },
+            { date: '27 maggio–4 giugno 1940', ev: 'Operazione Dynamo (Dunkerque)' },
+            { date: 'Luglio-ottobre 1940', ev: 'Battaglia d\'Inghilterra' },
+            { date: '22 giugno 1941', ev: 'Operazione Barbarossa (invasione URSS)' },
+            { date: '7 dicembre 1941', ev: 'Attacco giapponese a Pearl Harbor' },
+            { date: 'Gennaio 1942', ev: 'Conferenza di Wannsee (soluzione finale)' },
+            { date: 'Giugno 1942', ev: 'Battaglia delle Midway (svolta nel Pacifico)' },
+            { date: '23 ottobre–3 novembre 1942', ev: 'Seconda battaglia di El Alamein' },
+            { date: '17 luglio 1942–2 febbraio 1943', ev: 'Battaglia di Stalingrado' },
+            { date: 'Aprile 1943', ev: 'Rivolta del ghetto di Varsavia' },
+            { date: '9-10 luglio 1943', ev: 'Sbarco alleato in Sicilia' },
+            { date: '25 luglio 1943', ev: 'Caduta di Mussolini' },
+            { date: '8 settembre 1943', ev: 'Armistizio italiano annunciato' },
+            { date: '24 marzo 1944', ev: 'Eccidio delle Fosse Ardeatine' },
+            { date: '6 giugno 1944', ev: 'D-Day: Sbarco in Normandia' },
+            { date: '25 agosto 1944', ev: 'Liberazione di Parigi' },
+            { date: '25 aprile 1945', ev: 'Insurrezione e Liberazione d\'Italia' },
+            { date: '28 aprile 1945', ev: 'Fucilazione di Mussolini a Dongo' },
+            { date: '30 aprile 1945', ev: 'Suicidio di Hitler nel bunker' },
+            { date: '7 maggio 1945', ev: 'Resa incondizionata della Germania' },
+            { date: '6 agosto 1945', ev: 'Bomba atomica su Hiroshima' },
+            { date: '9 agosto 1945', ev: 'Bomba atomica su Nagasaki' },
+            { date: '2 settembre 1945', ev: 'Resa formale del Giappone (fine SGM)' },
+            { date: 'Ottobre 1945', ev: 'Fondazione dell\'ONU' },
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DATA — FLASHCARDS
+        // ═══════════════════════════════════════════════════════════════════
+        const FLASHCARDS = [
+            { f: 'Cos\'è il Blitzkrieg?', b: 'Guerra lampo: concentrazione di panzer e aerei in pochi punti per sfondare il fronte e avanzare rapidamente. Testato in Polonia (1939), poi Francia e URSS.' },
+            { f: 'Patto Molotov-Ribbentrop', b: 'Patto di non aggressione Germania-URSS (agosto 1939). Clausole segrete: spartizione Polonia, sfera di influenza sovietica sui Paesi Baltici.' },
+            { f: 'Patto d\'Acciaio', b: 'Alleanza militare italo-tedesca (maggio 1939). Mussolini firma convinto che la guerra non sarebbe iniziata presto. Hitler non mantenne la parola.' },
+            { f: 'Operazione Dynamo', b: 'Evacuazione di Dunkerque (27 mag–4 giu 1940). 800 imbarcazioni (molte civili) salvano 338.000 soldati sotto il fuoco tedesco.' },
+            { f: 'Governo di Vichy', b: 'Governo collaborazionista francese (1940-44) guidato da Pétain. Governò il Sud della Francia e le colonie. Ben presto assunse caratteri fascisti.' },
+            { f: 'Drôle de guerre', b: '"Strana guerra" / "guerra farsa": periodo ott 1939–mag 1940 in cui sul fronte occidentale non avviene nulla nonostante le dichiarazioni di guerra.' },
+            { f: 'Battaglia d\'Inghilterra', b: 'Luglio-ottobre 1940. La Luftwaffe bombarda la GB per 5 mesi ma fallisce. Il radar permette alla RAF di intercettare i tedeschi. RAF: ~1000 aerei. Luftwaffe: ~2000.' },
+            { f: 'Operazione Barbarossa', b: 'Invasione tedesca dell\'URSS, 22 giugno 1941. 3 milioni di soldati. I tedeschi arrivano alle porte di Mosca ma vengono bloccati dall\'inverno russo.' },
+            { f: 'Grande guerra patriottica', b: 'Come Stalin chiamò la resistenza all\'invasione tedesca. Si appoggiò anche alla Chiesa ortodossa. Il parallelo era con la guerra contro Napoleone del 1812.' },
+            { f: 'Pearl Harbor', b: '7 dicembre 1941. L\'aviazione giapponese attacca a sorpresa la flotta USA: 8 corazzate affondate/danneggiate. Il giorno dopo gli USA entrano in guerra.' },
+            { f: 'Conferenza di Wannsee', b: 'Gennaio 1942. Heydrich, Eichmann e altri gerarchi pianificano la "soluzione finale": sterminio sistematico di ~11 milioni di ebrei europei.' },
+            { f: 'Shoah / Olocausto', b: 'Sterminio pianificato degli ebrei da parte dei nazisti. ~6 milioni di vittime. Camere a gas, forni crematori, deportazioni. Auschwitz: il campo più grande.' },
+            { f: 'Einsatzgruppen', b: 'Unità operative SS-Polizia che seguivano l\'esercito nell\'Europa orientale. Fucilazioni di massa: a Babij Jar (Kiev) ~29.000 ebrei in 2 giorni.' },
+            { f: 'Battaglia di Stalingrado', b: '17 lug 1942–2 feb 1943. La 6ª armata tedesca (gen. Paulus) accerchiata dall\'Armata Rossa (gen. Zukov). ~200.000 prigionieri. Svolta decisiva della guerra.' },
+            { f: 'El Alamein', b: 'Ottobre-novembre 1942. Montgomery sconfigge Rommel e l\'Afrika Korps. Fine della guerra in Nord Africa. La Libia è perduta per l\'Italia.' },
+            { f: 'Battaglia delle Midway', b: 'Giugno 1942. La marina USA distrugge quasi tutte le portaerei giapponesi. Svolta nel Pacifico: il Giappone perde l\'iniziativa strategica.' },
+            { f: 'Carta Atlantica', b: 'Agosto 1941, incontro Roosevelt-Churchill a Terranova. Principi del futuro ordine internazionale: libero accesso alle risorse, autodeterminazione, liberalizzazione mercati.' },
+            { f: 'ARMIR', b: 'Armata Italiana in Russia. Oltre 230.000 soldati inviati da Mussolini sul fronte orientale. Travolta nella disfatta sul Don nel 1942-43.' },
+            { f: '8 settembre 1943', b: 'Annuncio pubblico dell\'armistizio italiano. Il re e Badoglio fuggono a Brindisi. L\'esercito è lasciato senza ordini. I tedeschi occupano il Centro-Nord (Piano Alarico). 600.000 italiani finiscono nei lager.' },
+            { f: 'Repubblica di Salò (RSI)', b: 'Repubblica Sociale Italiana. Fondata da Mussolini nel settembre 1943 dopo la sua liberazione. Sede a Salò (Lago di Garda). Stato fantoccio tedesco. Brigate Nere come milizia del terrore.' },
+            { f: 'Resistenza italiana', b: '~300.000 partigiani (35.000 caduti). CLN coordinano Brigate Garibaldi (rosse/PCI), GL (verdi/PdA), Matteotti (PSIUP), Fiamme Verdi (cattolici), Badogliani/Azzurri (monarchici).' },
+            { f: 'Fosse Ardeatine', b: '24 marzo 1944. I nazisti fucilano 335 prigionieri a Roma come rappresaglia per l\'attentato di via Rasella (32 tedeschi uccisi).' },
+            { f: '25 aprile 1945', b: 'Insurrezione partigiana nel Nord Italia. Bologna (21/4), Genova (24/4), Milano (25/4), Torino (27/4), Venezia (28/4). Oggi Festa della Liberazione.' },
+            { f: 'D-Day – Operazione Overlord', b: '6 giugno 1944. Sbarco in Normandia guidato da Eisenhower: 5 spiagge, 4000 navi, 12.000 aerei. Più grande invasione navale della storia.' },
+            { f: 'Foibe', b: 'Crepacci carsici in Istria/Dalmazia. Milizie di Tito gettano migliaia di italiani: 5.000-10.000 vittime. ~300.000 italiani costretti all\'esodo giuliano-dalmata.' },
+            { f: 'Kamikaze', b: 'Piloti giapponesi suicidi che si lanciavano con gli aerei sulle navi nemiche. "Vento divino": il tifone che distrusse le navi mongole nel 1274 e 1281. Usati dal novembre 1944.' },
+            { f: 'Progetto Manhattan', b: 'Programma segreto USA per la bomba atomica. Laboratori di Los Alamos. Guidato da Robert Oppenheimer con il contributo del fisico italiano Enrico Fermi.' },
+            { f: 'Hiroshima e Nagasaki', b: '6 agosto 1945: "Little Boy" su Hiroshima (~100.000 morti). 9 agosto: "Fat Man" su Nagasaki (~100.000 morti). Il 15 agosto il Giappone annuncia la resa.' },
+            { f: 'Processi di Norimberga', b: '1945-1946. 22 capi nazisti processati. Nasce il concetto di "crimini contro l\'umanità". 12 condanne a morte. Confermati ~6 milioni di ebrei assassinati.' },
+            { f: 'ONU', b: 'Organizzazione delle Nazioni Unite, fondata nell\'ottobre 1945. Consiglio di Sicurezza con 5 membri permanenti (USA, URSS, UK, Francia, Cina) con diritto di veto.' },
+            { f: 'Bretton Woods 1944', b: '44 Stati stabiliscono il nuovo ordine economico. Il dollaro = moneta di riferimento. FMI (Fondo Monetario Internazionale), Banca Mondiale, GATT (1947).' },
+            { f: 'Chi era Himmler?', b: 'Heinrich Himmler: capo delle SS. Massimo responsabile dell\'Olocausto e dei campi di sterminio. Si suicidò nel 1945 dopo la cattura.' },
+            { f: 'Chi era Eichmann?', b: 'Adolf Eichmann: organizzatore delle deportazioni degli ebrei. Partecipò a Wannsee. Catturato dal Mossad in Argentina nel 1960, giustiziato in Israele nel 1962.' },
+            { f: 'Chi era De Gaulle?', b: 'Generale francese che rifiutò la resa. Da Londra organizzò la Francia Libera. Tornò in Francia dopo il D-Day. Liberò Parigi il 25 agosto 1944. Fondò la V Repubblica.' },
+            { f: 'Chi era Paulus?', b: 'Friedrich Paulus: comandante della 6ª armata tedesca a Stalingrado. Si arrese il 2 febbraio 1943 con 200.000 uomini, disobbedendo alla volontà di Hitler.' },
+            { f: 'Chi era Zukov?', b: 'Georgij Zukov: il più abile generale sovietico. Difese Mosca, organizzò la controffensiva a Stalingrado, guidò la conquista di Berlino.' },
+            { f: 'Chi era Eisenhower?', b: 'Dwight D. Eisenhower: comandante alleato. Guidò lo sbarco in Nordafrica (1942) e l\'Operazione Overlord (D-Day, 1944). Poi 34° presidente degli USA.' },
+            { f: 'Chi era Jan Karski?', b: 'Resistente polacco che fornì i primi resoconti dettagliati dello sterminio agli Alleati e a Roosevelt. La sua denuncia rimase in gran parte inascoltata.' },
+            { f: 'Svolta di Salerno', b: 'Marzo 1944. Palmiro Togliatti (PCd\'I) convince il CLN a sostenere il re contro i nazifascisti, rimandando la questione istituzionale a dopo la guerra.' },
+            { f: 'Patto Tripartito', b: '1940. Roma-Berlino-Tokyo. Prevede divisione del mondo in sfere di influenza. Il Giappone espande nel Pacifico. Clausola di mutuo soccorso in caso di guerra.' },
+            { f: 'Leningrado: l\'assedio', b: 'Settembre 1941–gennaio 1944: 872 giorni di assedio. 700.000 abitanti morti, la maggior parte di fame. La città non cadde mai.' },
+            { f: 'Quisling', b: 'Vikdun Quisling: capo del Partito nazista norvegese installato dai tedeschi come collaborazionista. Il suo nome è diventato sinonimo di "traditore".' },
+            { f: 'Cos\'è Babij Jar?', b: 'Gola di burrone a Kiev. 29-30 settembre 1941: gli Einsatzgruppen fucilano ~29.000 ebrei in due giorni. Uno dei massacri più grandi della Shoah.' },
+            { f: 'Conferenza di Teheran (1943)', b: 'Nov-dic 1943. Roosevelt, Churchill e Stalin: pianificano il D-Day, lo smembramento della Germania, e l\'ingresso dell\'URSS nella guerra al Giappone.' },
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DATA — CHARACTERS
+        // ═══════════════════════════════════════════════════════════════════
+        const CHARACTERS = [
+            { n: 'Adolf Hitler', role: 'Führer della Germania nazista', side: 'asse', ico: '🇩🇪', desc: 'Dittatore tedesco che scatenò la guerra. Ordinò l\'Olocausto. Si suicidò nel bunker il 30 aprile 1945.' },
+            { n: 'Benito Mussolini', role: 'Duce d\'Italia', side: 'asse', ico: '🇮🇹', desc: 'Fondatore del fascismo. Entrò in guerra nel 1940. Cadde il 25 luglio 1943. Fucilato dai partigiani il 28 aprile 1945 a Dongo.' },
+            { n: 'Heinrich Himmler', role: 'Capo delle SS', side: 'asse', ico: '☠️', desc: 'Massimo responsabile dell\'Olocausto e dei campi di sterminio. Organizzò gli Einsatzgruppen. Si suicidò nel 1945.' },
+            { n: 'Reinhard Heydrich', role: 'Capo dei servizi di sicurezza SS', side: 'asse', ico: '🗡️', desc: 'Organizzò la Conferenza di Wannsee (1942). Coniò il termine "soluzione finale". Assassinato dai partigiani cecoslovacchi nel 1942.' },
+            { n: 'Erwin Rommel', role: 'Generale, Afrika Korps', side: 'asse', ico: '🏜️', desc: '"La Volpe del deserto": guidò l\'Afrika Korps in Nord Africa. Sconfitto a El Alamein. Coinvolto nell\'attentato del 20 luglio, si suicidò nel 1944.' },
+            { n: 'Adolf Eichmann', role: 'Responsabile delle deportazioni', side: 'asse', ico: '🚂', desc: 'Organizzatore delle deportazioni degli ebrei verso i campi. Partecipò a Wannsee. Fuggì in Argentina. Catturato dal Mossad nel 1960, giustiziato nel 1962.' },
+            { n: 'Philippe Pétain', role: 'Capo governo di Vichy', side: 'asse', ico: '🏳️', desc: 'Eroe della Prima guerra mondiale, accettò la resa e guidò il governo collaborazionista di Vichy. Condannato a morte per tradimento nel 1945, la pena fu commutata in ergastolo.' },
+            { n: 'Friedrich Paulus', role: 'Generale, 6ª armata a Stalingrado', side: 'asse', ico: '❄️', desc: 'Comandante della 6ª armata a Stalingrado. Si arrese il 2 febbraio 1943 con 200.000 uomini.' },
+            { n: 'Isoroku Yamamoto', role: 'Ammiraglio, marina giapponese', side: 'asse', ico: '🇯🇵', desc: 'Progettò l\'attacco a Pearl Harbor. Convinto che solo la distruzione della flotta USA avrebbe permesso trattative vantaggiose. Ucciso in un agguato aereo americano nel 1943.' },
+            { n: 'Winston Churchill', role: 'Primo Ministro britannico', side: 'alleati', ico: '🇬🇧', desc: '"Blood, toil, tears and sweat". Leader che tenne la Gran Bretagna in guerra da sola. Firmò la Carta Atlantica con Roosevelt. Presente a Casablanca, Teheran e Yalta.' },
+            { n: 'Franklin D. Roosevelt', role: 'Presidente degli Stati Uniti', side: 'alleati', ico: '🇺🇸', desc: 'Sostenne la GB con la legge Affitti e Prestiti. Guidò gli USA nella guerra dopo Pearl Harbor. Firmò la Carta Atlantica. Morì nell\'aprile 1945 prima della vittoria.' },
+            { n: 'Joseph Stalin', role: 'Dittatore dell\'URSS', side: 'alleati', ico: '🇷🇺', desc: 'Sorpreso dall\'Operazione Barbarossa. Organizzò la "Grande guerra patriottica". Presente a Teheran e Yalta. Guidò l\'URSS alla vittoria con ~27 milioni di morti.' },
+            { n: 'Charles De Gaulle', role: 'Capo della Francia Libera', side: 'alleati', ico: '🇫🇷', desc: 'Rifiutò la resa nel 1940 e organizzò la resistenza da Londra. Tornò in Francia dopo il D-Day. Liberò Parigi il 25 agosto 1944. Fondò la V Repubblica.' },
+            { n: 'Dwight Eisenhower', role: 'Comandante supremo Alleati', side: 'alleati', ico: '⭐', desc: 'Guidò lo sbarco in Nordafrica (1942) e l\'Operazione Overlord (D-Day, 6 giugno 1944). Poi 34° presidente degli USA.' },
+            { n: 'Bernard Montgomery', role: 'Generale britannico', side: 'alleati', ico: '🏆', desc: '"Monty": sconfisse Rommel a El Alamein (1942). Comandò le forze britanniche nello sbarco in Sicilia e in Normandia.' },
+            { n: 'Georgij Zukov', role: 'Generale sovietico', side: 'alleati', ico: '🌟', desc: 'Il più abile generale dell\'Armata Rossa. Difese Mosca, organizzò la controffensiva a Stalingrado, guidò la conquista di Berlino nel 1945.' },
+            { n: 'Harry Truman', role: 'Presidente degli USA (1945)', side: 'alleati', ico: '☢️', desc: 'Prese il posto di Roosevelt alla sua morte. Decise di usare la bomba atomica su Hiroshima e Nagasaki per costringere il Giappone alla resa.' },
+            { n: 'Robert Oppenheimer', role: 'Direttore del Progetto Manhattan', side: 'alleati', ico: '⚛️', desc: 'Fisico che guidò il team internazionale di Los Alamos per sviluppare la bomba atomica. "Ora sono diventato la Morte, il distruttore di mondi."' },
+            { n: 'Enrico Fermi', role: 'Fisico, Progetto Manhattan', side: 'alleati', ico: '🇮🇹', desc: 'Fisico italiano fuggito dall\'Italia fascista. Prima reazione nucleare controllata nel 1942 a Chicago. Contribuì decisivamente al Progetto Manhattan.' },
+            { n: 'Josip Broz (Tito)', role: 'Capo partigiani iugoslavi', side: 'alleati', ico: '🇾🇺', desc: 'Unico leader partigiano iugoslavo sempre opposto ai nazisti. Fondò la Iugoslavia comunista. Le sue milizie commisero le stragi delle foibe.' },
+            { n: 'Palmiro Togliatti', role: 'Segretario PCd\'I', side: 'alleati', ico: '🔴', desc: 'Con la "Svolta di Salerno" (1944) convinse il CLN a sostenere il re per battere i nazifascisti, rinviando la questione istituzionale al dopoguerra.' },
+            { n: 'Galeazzo Ciano', role: 'Ministro degli Esteri italiano', side: 'asse', ico: '🇮🇹', desc: 'Genero di Mussolini. Votò la sfiducia al suocero nel Gran Consiglio (luglio 1943). Catturato dalla RSI, fucilato per tradimento a Verona nel gennaio 1944.' },
+            { n: 'Jan Karski', role: 'Resistente polacco', side: 'alleati', ico: '🕊️', desc: 'Primo testimone a fornire resoconti dettagliati dello sterminio agli Alleati e al presidente Roosevelt. La sua denuncia rimase in gran parte inascoltata.' },
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DATA — QUICK DATES
+        // ═══════════════════════════════════════════════════════════════════
+        const QUICK_DATES = [
+            { d: '1 set. 1939', e: 'Invasione della Polonia → inizio SGM' },
+            { d: '3 set. 1939', e: 'Francia e GB dichiarano guerra' },
+            { d: '10 giu. 1940', e: 'Italia entra in guerra' },
+            { d: '14 giu. 1940', e: 'Caduta di Parigi' },
+            { d: '22 giu. 1940', e: 'Armistizio di Compiègne' },
+            { d: 'Lug–Ott 1940', e: 'Battaglia d\'Inghilterra' },
+            { d: '22 giu. 1941', e: 'Operazione Barbarossa' },
+            { d: '7 dic. 1941', e: 'Pearl Harbor' },
+            { d: 'Gen. 1942', e: 'Conferenza di Wannsee' },
+            { d: 'Giu. 1942', e: 'Midway (svolta Pacifico)' },
+            { d: 'Nov. 1942', e: 'El Alamein' },
+            { d: 'Feb. 1943', e: 'Resa di Stalingrado' },
+            { d: '25 lug. 1943', e: 'Caduta di Mussolini' },
+            { d: '8 set. 1943', e: 'Armistizio italiano' },
+            { d: '6 giu. 1944', e: 'D-Day (Normandia)' },
+            { d: '25 apr. 1945', e: 'Liberazione d\'Italia' },
+            { d: '30 apr. 1945', e: 'Suicidio di Hitler' },
+            { d: '7 mag. 1945', e: 'Resa della Germania' },
+            { d: '6 ago. 1945', e: 'Hiroshima' },
+            { d: '2 set. 1945', e: 'Resa del Giappone → fine SGM' },
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════
+        function defProg() {
+            return {
+                qgPlays: 0, qdPlays: 0, qvfPlays: 0, qmPlays: 0,
+                qgAvg: 0, qdAvg: 0, qvfAvg: 0, qmAvg: 0,
+                qgBest: 0, qdBest: 0, vfBest: 0, qmBest: 0,
+                fcStudied: 0, totalCorrect: 0, totalAnswers: 0,
+                xp: 0, achievements: {}, streak: 0, lastStudy: '',
+                studyTime: 0
+            };
+        }
+        let state = {
+            qgIdx: 0, qgAnswers: [], qgDone: false, qgDiff: 'all', qgSet: [],
+            qvfIdx: 0, qvfAnswers: [], qvfDone: false, qvfSet: [],
+            qdIdx: 0, qdAnswers: [], qdDone: false, qdMode: 0, qdShuffled: [],
+            qmIdx: 0, qmAnswers: [], qmDone: false, qmSet: [],
+            fcIdx: 0, fcFlipped: false,
+            tlPhase: 'all', charFilter: 'all',
+            progress: Object.assign(defProg(), JSON.parse(localStorage.getItem('sgm_prog') || '{}'))
+        };
+
+        function saveProgress() { localStorage.setItem('sgm_prog', JSON.stringify(state.progress)); }
+
+        // ─── STUDY TIME TRACKING ─────────────────────────────────────────
+        let _lastTick = Date.now();
+        setInterval(() => {
+            const now = Date.now();
+            state.progress.studyTime += Math.round((now - _lastTick) / 1000);
+            _lastTick = now;
+            const today = new Date().toISOString().slice(0, 10);
+            if (state.progress.lastStudy !== today) {
+                const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+                if (state.progress.lastStudy === yesterday) { state.progress.streak++; }
+                else { state.progress.streak = 1; }
+                state.progress.lastStudy = today;
+                saveProgress();
+                if (state.progress.streak >= 3) unlockAch('streak_3');
+            }
+        }, 5000);
+
+        // ═══════════════════════════════════════════════════════════════════
+        // ACHIEVEMENTS
+        // ═══════════════════════════════════════════════════════════════════
+        function unlockAch(id) {
+            if (state.progress.achievements[id]) return;
+            state.progress.achievements[id] = Date.now();
+            saveProgress();
+            const a = ACHIEVEMENTS.find(x => x.id === id);
+            if (!a) return;
+            state.progress.xp += a.xp;
+            saveProgress();
+            showAchToast(a);
+        }
+        function showAchToast(a) {
+            const t = document.getElementById('ach-toast');
+            document.getElementById('ach-toast-ico').textContent = a.ico;
+            document.getElementById('ach-toast-name').textContent = a.title;
+            document.getElementById('ach-toast-desc').textContent = a.desc + ' (+' + a.xp + ' XP)';
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+        function checkAchievements() {
+            const p = state.progress;
+            if (p.qgPlays > 0 || p.qdPlays > 0 || p.qvfPlays > 0 || p.qmPlays > 0) unlockAch('first_quiz');
+            if (p.qgBest >= 100 || p.qdBest >= 100 || p.vfBest >= 100 || p.qmBest >= 100) unlockAch('perfect');
+            if (p.xp >= 200) unlockAch('study_10');
+            if (p.fcStudied >= FLASHCARDS.length) unlockAch('all_fc');
+            if (p.qdBest >= 80) unlockAch('date_expert');
+            if (p.qgBest >= 80) unlockAch('quiz_expert');
+            if (p.vfBest >= 90) unlockAch('vf_master');
+            if (p.qgPlays > 0 && p.qdPlays > 0 && p.qvfPlays > 0 && p.qmPlays > 0) unlockAch('all_types');
+            const lv = getLevel(p.xp);
+            if (lv.name === 'Storico' || lv.name === 'Esperto' || lv.name === 'Maestro') unlockAch('level3');
+        }
+        function getLevel(xp) { return LEVELS.find(l => xp >= l.min && xp <= l.max) || LEVELS[0]; }
+        function addXP(n) { state.progress.xp += n; saveProgress(); }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // NAVIGATION
+        // ═══════════════════════════════════════════════════════════════════
+        function go(id) {
+            document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+            document.querySelectorAll('[data-s]').forEach(b => b.classList.remove('active'));
+            const el = document.getElementById('s-' + id);
+            if (el) el.classList.add('on');
+            document.querySelectorAll('[data-s="' + id + '"]').forEach(b => b.classList.add('active'));
+            window.scrollTo(0, 0);
+            if (id === 'home') renderHome();
+            else if (id === 'timeline') initTimeline();
+            else if (id === 'summaries') showSum(0, document.querySelector('.stab'));
+            else if (id === 'quiz-g') setQGDiff(state.qgDiff || 'all', document.querySelector('#s-quiz-g .fb.on') || document.querySelector('#s-quiz-g .fb'));
+            else if (id === 'quiz-vf') initQuizVF();
+            else if (id === 'quiz-d') initQuizD();
+            else if (id === 'quiz-m') initQuizM();
+            else if (id === 'flashcards') initFlashcards();
+            else if (id === 'characters') renderChars();
+            else if (id === 'mindmap') initMindmap();
+            else if (id === 'progress') renderProgress();
+            else if (id === 'search') setTimeout(() => document.getElementById('srch-in').focus(), 100);
+        }
+        function themeToggle() {
+            const d = document.documentElement;
+            d.dataset.theme = d.dataset.theme === 'dark' ? 'light' : 'dark';
+            if (document.getElementById('s-mindmap').classList.contains('on')) drawMM();
+        }
+        function openMobMenu() { document.getElementById('mob-overlay').classList.add('show'); document.getElementById('mob-menu').classList.add('show'); }
+        function closeMobMenu() { document.getElementById('mob-overlay').classList.remove('show'); document.getElementById('mob-menu').classList.remove('show'); }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // HOME
+        // ═══════════════════════════════════════════════════════════════════
+        function renderHome() {
+            const p = state.progress;
+            const lv = getLevel(p.xp);
+            const nextLv = LEVELS[LEVELS.indexOf(lv) + 1] || lv;
+            const pct = lv === nextLv ? 100 : Math.round((p.xp - lv.min) / (nextLv.min - lv.min) * 100);
+            document.getElementById('home-xp').innerHTML = `
+    <div class="xp-level">
+      <div class="xp-lvl-name">${lv.ico} ${lv.name}</div>
+      <div class="xp-pts">${p.xp} XP</div>
+    </div>
+    <div class="xp-track"><div class="xp-fill" style="width:${pct}%"></div></div>
+    <div class="xp-sub">${lv === nextLv ? 'Livello massimo raggiunto! 🏆' : `${nextLv.min - p.xp} XP al prossimo livello: ${nextLv.name}`}</div>`;
+            const daily = getDailyQuiz();
+            const todayKey = new Date().toISOString().slice(0, 10);
+            const doneToday = p.dailyDate === todayKey && p.dailyDone;
+            document.getElementById('home-daily').innerHTML = doneToday ?
+                `<div class="daily-done">✅ Quiz giornaliero completato! Torna domani per un nuovo set.</div>` :
+                `<div class="daily-widget" onclick="startDailyQuiz()">
+      <div class="daily-tag">📅 Quiz del giorno</div>
+      <div class="daily-q">${daily[0].q}</div>
+      <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--muted)">5 domande casuali di oggi</span>
+        <span class="btn btn-p" style="font-size:11px;padding:7px 14px">Inizia →</span>
+      </div>
+    </div>`;
+        }
+        function seededRand(seed) { let s = seed; return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; }; }
+        function getDailyQuiz() {
+            const t = new Date(); const seed = t.getFullYear() * 10000 + (t.getMonth() + 1) * 100 + t.getDate();
+            const r = seededRand(seed); const idx = []; const n = QUIZ_G.length;
+            while (idx.length < 5) { const i = Math.floor(r() * n); if (!idx.includes(i)) idx.push(i); }
+            return idx.map(i => QUIZ_G[i]);
+        }
+        function startDailyQuiz() { go('quiz-m'); }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // TIMELINE
+        // ═══════════════════════════════════════════════════════════════════
+        function initTimeline() {
+            const fb = document.getElementById('tl-filters');
+            if (!fb.innerHTML) {
+                fb.innerHTML = '<button class="fb on" onclick="tlFilter(\'all\',this)">Tutti</button>' +
+                    Object.entries(PHASES).map(([k, v]) => `<button class="fb" onclick="tlFilter('${k}',this)" style="--ac:${v.color}">${v.label}</button>`).join('');
+            }
+            renderTimeline(state.tlPhase);
+        }
+        function tlFilter(ph, btn) {
+            document.querySelectorAll('#tl-filters .fb').forEach(b => b.classList.remove('on'));
+            btn.classList.add('on'); state.tlPhase = ph; renderTimeline(ph);
+        }
+        function renderTimeline(ph) {
+            const cont = document.getElementById('tl-evts');
+            const evs = ph === 'all' ? EVENTS : EVENTS.filter(e => e.ph === ph);
+            cont.innerHTML = evs.map((e, i) => {
+                const p = PHASES[e.ph];
+                return `<div class="ev" data-idx="${i}" style="--pc:${p.color}">
+      <div class="ev-card" onclick="toggleEv(this)" data-star="${e.star}">
+        <div class="ev-phase" style="background:${p.bg}">${p.label}</div>
+        <div class="ev-date">${e.d}</div>
+        <div class="ev-title">${e.t}</div>
+        ${e.star ? '<div class="ev-star">★</div>' : ''}
+        <div class="ev-desc">${e.desc}</div>
+        <div class="ev-toggle"></div>
+      </div>
+      <div class="ev-dot"></div>
+    </div>`;
+            }).join('');
+            const obs = new IntersectionObserver(entries => { entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('vis'); obs.unobserve(en.target); } }); }, { threshold: 0.1 });
+            cont.querySelectorAll('.ev').forEach((el, i) => { el.style.transitionDelay = (i * 0.04) + 's'; obs.observe(el); });
+        }
+        function toggleEv(c) { c.classList.toggle('xp'); }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // SUMMARIES
+        // ═══════════════════════════════════════════════════════════════════
+        function showSum(i, btn) {
+            document.querySelectorAll('.stab').forEach(b => b.classList.remove('on'));
+            if (btn) btn.classList.add('on');
+            document.getElementById('sum-body').innerHTML = SUMMARIES[i];
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // QUIZ GENERALE
+        // ═══════════════════════════════════════════════════════════════════
+        function setQGDiff(diff, btn) {
+            document.querySelectorAll('#s-quiz-g .fb').forEach(b => b.classList.remove('on'));
+            if (btn) btn.classList.add('on');
+            state.qgDiff = diff;
+            state.qgSet = shuffleArr(diff === 'all' ? [...QUIZ_G] : QUIZ_G.filter(q => q.diff === diff));
+            state.qgIdx = 0; state.qgAnswers = []; state.qgDone = false;
+            renderQuizG();
+        }
+        function renderQuizG() {
+            const c = document.getElementById('qg-cont');
+            if (!state.qgSet.length) { c.innerHTML = '<div class="empty"><div class="empty-e">🔍</div>Nessuna domanda per questa difficoltà.</div>'; return; }
+            if (state.qgDone) { renderQGResult(c); return; }
+            const q = state.qgSet[state.qgIdx], n = state.qgSet.length;
+            const diff = q.diff; const diffLabel = diff === 'f' ? '🟢 Facile' : diff === 'm' ? '🟠 Media' : '🔴 Difficile';
+            c.innerHTML = `<div class="qdots">${state.qgSet.map((_, i) => `<div class="qd${i === state.qgIdx ? ' cur' : state.qgAnswers[i] === true ? ' ok' : state.qgAnswers[i] === false ? ' err' : ''}"></div>`).join('')}</div>
+<div class="qcard">
+  <div class="diff-badge diff-${diff}">${diffLabel}</div>
+  <div class="qnum">Domanda ${state.qgIdx + 1} di ${n}</div>
+  <div class="qq">${q.q}</div>
+  <div class="qopts">${q.opts.map((o, i) => `<button class="qopt" onclick="answerQG(${i},${q.a})">${String.fromCharCode(65 + i)}. ${o}</button>`).join('')}</div>
+  <div class="qfb" id="qgfb"></div>
+</div>
+<div class="qnav">
+  <span class="qscore">✅ ${state.qgAnswers.filter(a => a === true).length}/${state.qgIdx}</span>
+  ${state.qgIdx < n - 1 ? `<button class="btn btn-p" id="qgnxt" style="display:none" onclick="nextQG()">Prossima →</button>` : `<button class="btn btn-p" id="qgnxt" style="display:none" onclick="finishQG()">Risultato 🎯</button>`}
+</div>`;
+        }
+        function answerQG(chosen, correct) {
+            if (state.qgAnswers[state.qgIdx] !== undefined) return;
+            const ok = chosen === correct;
+            state.qgAnswers[state.qgIdx] = ok;
+            document.querySelectorAll('.qopt').forEach((b, i) => { b.disabled = true; if (i === correct) b.classList.add('ok'); if (i === chosen && !ok) b.classList.add('err'); });
+            const fb = document.getElementById('qgfb'); fb.classList.add('show', ok ? 'ok' : 'err');
+            const q = state.qgSet[state.qgIdx];
+            fb.innerHTML = `<strong>${ok ? '✅ Corretto!' : '❌ Sbagliato! La risposta corretta era: <em>' + q.opts[correct] + '</em>'}</strong><div class="qexp">${q.exp || ''}</div>`;
+            document.getElementById('qgnxt').style.display = 'flex';
+            state.progress.totalAnswers++;
+            if (ok) { state.progress.totalCorrect++; addXP(10); }
+            saveProgress();
+        }
+        function nextQG() { state.qgIdx++; renderQuizG(); }
+        function finishQG() {
+            state.qgDone = true;
+            const ok = state.qgAnswers.filter(a => a === true).length;
+            const pct = Math.round(ok / state.qgSet.length * 100);
+            state.progress.qgPlays++; state.progress.qgAvg = Math.round((state.progress.qgAvg * (state.progress.qgPlays - 1) + pct) / state.progress.qgPlays);
+            state.progress.qgBest = Math.max(state.progress.qgBest, pct);
+            addXP(20); saveProgress(); checkAchievements(); renderQGResult(document.getElementById('qg-cont'));
+        }
+        function renderQGResult(c) {
+            const ok = state.qgAnswers.filter(a => a === true).length, n = state.qgSet.length, pct = Math.round(ok / n * 100);
+            c.innerHTML = `<div class="qres"><div class="qres-n">${pct}%</div><div class="qres-sub">${ok} risposte corrette su ${n}</div>
+<p style="color:var(--muted);margin-bottom:24px">${pct >= 80 ? '🎉 Ottimo risultato!' : pct >= 60 ? '👍 Buono, ripassa ancora!' : '📖 Rileggi i riassunti e riprova!'}</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+  <button class="btn btn-p" onclick="setQGDiff(state.qgDiff)">🔄 Riprova</button>
+  <button class="btn btn-s" onclick="go('summaries')">📖 Ripassare</button>
+</div></div>`;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // QUIZ VERO / FALSO
+        // ═══════════════════════════════════════════════════════════════════
+        function initQuizVF() {
+            state.qvfIdx = 0; state.qvfAnswers = []; state.qvfDone = false;
+            state.qvfSet = shuffleArr([...QUIZ_VF]);
+            renderQuizVF();
+        }
+        function renderQuizVF() {
+            const c = document.getElementById('qvf-cont');
+            if (state.qvfDone) { renderVFResult(c); return; }
+            const q = state.qvfSet[state.qvfIdx], n = state.qvfSet.length;
+            c.innerHTML = `<div class="qdots">${state.qvfSet.map((_, i) => `<div class="qd${i === state.qvfIdx ? ' cur' : state.qvfAnswers[i] === true ? ' ok' : state.qvfAnswers[i] === false ? ' err' : ''}"></div>`).join('')}</div>
+<div class="qcard">
+  <div class="qnum">Vero o Falso · ${state.qvfIdx + 1}/${n}</div>
+  <div class="qq">${q.s}</div>
+  <div class="vf-btns">
+    <button class="vf-btn vf-v" onclick="answerVF(true)">✓ VERO</button>
+    <button class="vf-btn vf-f" onclick="answerVF(false)">✗ FALSO</button>
+  </div>
+  <div class="qfb" id="qvffb"></div>
+</div>
+<div class="qnav">
+  <span class="qscore">✅ ${state.qvfAnswers.filter(a => a).length}/${state.qvfIdx}</span>
+  ${state.qvfIdx < n - 1 ? `<button class="btn btn-p" id="qvfnxt" style="display:none" onclick="nextVF()">Prossima →</button>` : `<button class="btn btn-p" id="qvfnxt" style="display:none" onclick="finishVF()">Risultato 🎯</button>`}
+</div>`;
+        }
+        function answerVF(ans) {
+            if (state.qvfAnswers[state.qvfIdx] !== undefined) return;
+            const q = state.qvfSet[state.qvfIdx]; const ok = ans === q.a;
+            state.qvfAnswers[state.qvfIdx] = ok;
+            document.querySelectorAll('.vf-btn').forEach(b => { b.disabled = true; if ((b.classList.contains('vf-v') && q.a) || (b.classList.contains('vf-f') && !q.a)) b.classList.add('selected'); });
+            const fb = document.getElementById('qvffb'); fb.classList.add('show', ok ? 'ok' : 'err');
+            fb.innerHTML = `<strong>${ok ? '✅ Corretto!' : '❌ Sbagliato! La risposta era: ' + (q.a ? 'VERO' : 'FALSO')}</strong><div class="qexp">${q.exp}</div>`;
+            document.getElementById('qvfnxt').style.display = 'flex';
+            state.progress.totalAnswers++; if (ok) { state.progress.totalCorrect++; addXP(10); } saveProgress();
+        }
+        function nextVF() { state.qvfIdx++; renderQuizVF(); }
+        function finishVF() {
+            state.qvfDone = true;
+            const ok = state.qvfAnswers.filter(a => a).length, n = state.qvfSet.length, pct = Math.round(ok / n * 100);
+            state.progress.qvfPlays++; state.progress.qvfAvg = Math.round((state.progress.qvfAvg * (state.progress.qvfPlays - 1) + pct) / state.progress.qvfPlays);
+            state.progress.vfBest = Math.max(state.progress.vfBest, pct);
+            addXP(20); saveProgress(); checkAchievements(); renderVFResult(document.getElementById('qvf-cont'));
+        }
+        function renderVFResult(c) {
+            const ok = state.qvfAnswers.filter(a => a).length, n = state.qvfSet.length, pct = Math.round(ok / n * 100);
+            c.innerHTML = `<div class="qres"><div class="qres-n">${pct}%</div><div class="qres-sub">${ok} risposte corrette su ${n}</div>
+<p style="color:var(--muted);margin-bottom:24px">${pct >= 90 ? '🎉 Eccellente precisione!' : pct >= 70 ? '👍 Ottimo! Controlla le risposte errate.' : '📖 Rileggi il riassunto dettagliato!'}</p>
+<button class="btn btn-p" onclick="initQuizVF()">🔄 Riprova</button></div>`;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // QUIZ DATE
+        // ═══════════════════════════════════════════════════════════════════
+        function initQuizD() {
+            state.qdIdx = 0; state.qdAnswers = new Array(QUIZ_DATE.length).fill(null); state.qdDone = false;
+            state.qdMode = Math.floor(Math.random() * 2); state.qdShuffled = shuffleArr([...QUIZ_DATE]);
+            renderQuizD();
+        }
+        function renderQuizD() {
+            const c = document.getElementById('qd-cont');
+            if (state.qdDone) { renderQDResult(c); return; }
+            const q = state.qdShuffled[state.qdIdx], n = state.qdShuffled.length, mode = state.qdMode;
+            const correct = q[mode === 0 ? 'ev' : 'date'];
+            const wrong = shuffleArr(state.qdShuffled.filter(x => x !== q).slice(0, 3).map(x => x[mode === 0 ? 'ev' : 'date']));
+            const opts = shuffleArr([correct, ...wrong]);
+            c.innerHTML = `<div class="qdots">${state.qdShuffled.map((_, i) => `<div class="qd${i === state.qdIdx ? ' cur' : state.qdAnswers[i] === true ? ' ok' : state.qdAnswers[i] === false ? ' err' : ''}"></div>`).join('')}</div>
+<div class="qcard">
+  <div class="qnum">${mode === 0 ? '📅 Data → Evento' : '📋 Evento → Data'} · ${state.qdIdx + 1}/${n}</div>
+  <div class="qq">${mode === 0 ? `Quando avvenne: <em>${q.ev}</em>?` : `A quale data corrisponde: <em>${q.date}</em>?`}</div>
+  <div class="qopts">${opts.map(o => `<button class="qopt" onclick="answerQD(this,'${correct.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">${o}</button>`).join('')}</div>
+  <div class="qfb" id="qdfb"></div>
+</div>
+<div class="qnav"><span class="qscore">✅ ${state.qdAnswers.filter(a => a === true).length}/${state.qdIdx}</span>
+${state.qdIdx < n - 1 ? `<button class="btn btn-p" id="qdnxt" style="display:none" onclick="nextQD()">Prossima →</button>` : `<button class="btn btn-p" id="qdnxt" style="display:none" onclick="finishQD()">Risultato 🎯</button>`}
+</div>`;
+        }
+        function answerQD(btn, correct) {
+            if (state.qdAnswers[state.qdIdx] !== null) return;
+            const chosen = btn.textContent.trim();
+            const ok = chosen === correct; state.qdAnswers[state.qdIdx] = ok;
+            document.querySelectorAll('.qopt').forEach(b => { b.disabled = true; if (b.textContent.trim() === correct) b.classList.add('ok'); if (b.textContent.trim() === chosen && !ok) b.classList.add('err'); });
+            const fb = document.getElementById('qdfb'); fb.classList.add('show', ok ? 'ok' : 'err');
+            fb.textContent = ok ? '✅ Corretto!' : '❌ Sbagliato. La risposta era: ' + correct;
+            document.getElementById('qdnxt').style.display = 'flex';
+            state.progress.totalAnswers++; if (ok) { state.progress.totalCorrect++; addXP(10); } saveProgress();
+        }
+        function nextQD() { state.qdIdx++; renderQuizD(); }
+        function finishQD() {
+            state.qdDone = true;
+            const ok = state.qdAnswers.filter(a => a === true).length, n = state.qdShuffled.length, pct = Math.round(ok / n * 100);
+            state.progress.qdPlays++; state.progress.qdAvg = Math.round((state.progress.qdAvg * (state.progress.qdPlays - 1) + pct) / state.progress.qdPlays);
+            state.progress.qdBest = Math.max(state.progress.qdBest, pct);
+            addXP(20); saveProgress(); checkAchievements(); renderQDResult(document.getElementById('qd-cont'));
+        }
+        function renderQDResult(c) {
+            const ok = state.qdAnswers.filter(a => a === true).length, n = state.qdShuffled.length, pct = Math.round(ok / n * 100);
+            c.innerHTML = `<div class="qres"><div class="qres-n">${pct}%</div><div class="qres-sub">${ok} risposte corrette su ${n}</div>
+<p style="color:var(--muted);margin-bottom:24px">${pct >= 80 ? '🎉 Ottima memoria per le date!' : pct >= 60 ? '👍 Quasi! Ripassa la cronologia.' : '📅 Rileggi lo schema pre-verifica!'}</p>
+<button class="btn btn-p" onclick="initQuizD()">🔄 Riprova</button></div>`;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // QUIZ MISTO
+        // ═══════════════════════════════════════════════════════════════════
+        function initQuizM() {
+            const gSet = shuffleArr([...QUIZ_G]).slice(0, 7).map(q => ({ type: 'g', data: q }));
+            const vfSet = shuffleArr([...QUIZ_VF]).slice(0, 4).map(q => ({ type: 'vf', data: q }));
+            const dSet = shuffleArr([...QUIZ_DATE]).slice(0, 4).map(q => ({ type: 'd', data: q, mode: Math.random() > .5 ? 0 : 1 }));
+            state.qmSet = shuffleArr([...gSet, ...vfSet, ...dSet]);
+            state.qmIdx = 0; state.qmAnswers = []; state.qmDone = false;
+            renderQuizM();
+        }
+        function renderQuizM() {
+            const c = document.getElementById('qm-cont');
+            if (state.qmDone) { renderQMResult(c); return; }
+            const item = state.qmSet[state.qmIdx];
+            const n = state.qmSet.length;
+            c.innerHTML = `<div class="qdots">${state.qmSet.map((_, i) => `<div class="qd${i === state.qmIdx ? ' cur' : state.qmAnswers[i] === true ? ' ok' : state.qmAnswers[i] === false ? ' err' : ''}"></div>`).join('')}</div>`;
+            if (item.type === 'g') {
+                const q = item.data;
+                const dbl = q.diff === 'f' ? '🟢 Facile' : q.diff === 'm' ? '🟠 Media' : '🔴 Difficile';
+                c.innerHTML += `<div class="qcard">
+<div class="diff-badge diff-${q.diff}">${dbl}</div>
+<div class="qnum">🎯 Risposta Multipla · ${state.qmIdx + 1}/${n}</div>
+<div class="qq">${q.q}</div>
+<div class="qopts">${q.opts.map((o, i) => `<button class="qopt" onclick="answerQM_g(${i},${q.a})">${String.fromCharCode(65 + i)}. ${o}</button>`).join('')}</div>
+<div class="qfb" id="qmfb"></div>
+</div>`;
+            } else if (item.type === 'vf') {
+                const q = item.data;
+                c.innerHTML += `<div class="qcard">
+<div class="qnum">✅ Vero o Falso · ${state.qmIdx + 1}/${n}</div>
+<div class="qq">${q.s}</div>
+<div class="vf-btns">
+<button class="vf-btn vf-v" onclick="answerQM_vf(true)">✓ VERO</button>
+<button class="vf-btn vf-f" onclick="answerQM_vf(false)">✗ FALSO</button>
+</div>
+<div class="qfb" id="qmfb"></div>
+</div>`;
+            } else {
+                const q = item.data, mode = item.mode;
+                const correct = q[mode === 0 ? 'ev' : 'date'];
+                const wrong = shuffleArr(QUIZ_DATE.filter(x => x !== q).slice(0, 3).map(x => x[mode === 0 ? 'ev' : 'date']));
+                const opts = shuffleArr([correct, ...wrong]);
+                c.innerHTML += `<div class="qcard">
+<div class="qnum">📅 Date · ${state.qmIdx + 1}/${n}</div>
+<div class="qq">${mode === 0 ? `Quando avvenne: <em>${q.ev}</em>?` : `A quale data corrisponde: <em>${q.date}</em>?`}</div>
+<div class="qopts">${opts.map(o => `<button class="qopt" onclick="answerQM_d(this,'${correct.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">${o}</button>`).join('')}</div>
+<div class="qfb" id="qmfb"></div>
+</div>`;
+            }
+            c.innerHTML += `<div class="qnav">
+<span class="qscore">✅ ${state.qmAnswers.filter(a => a === true).length}/${state.qmIdx}</span>
+${state.qmIdx < n - 1 ? `<button class="btn btn-p" id="qmnxt" style="display:none" onclick="nextQM()">Prossima →</button>` : `<button class="btn btn-p" id="qmnxt" style="display:none" onclick="finishQM()">Risultato 🎯</button>`}
+</div>`;
+        }
+        function answerQM_g(chosen, correct) {
+            if (state.qmAnswers[state.qmIdx] !== undefined) return;
+            const ok = chosen === correct; state.qmAnswers[state.qmIdx] = ok;
+            const q = state.qmSet[state.qmIdx].data;
+            document.querySelectorAll('.qopt').forEach((b, i) => { b.disabled = true; if (i === correct) b.classList.add('ok'); if (i === chosen && !ok) b.classList.add('err'); });
+            const fb = document.getElementById('qmfb'); fb.classList.add('show', ok ? 'ok' : 'err');
+            fb.innerHTML = `<strong>${ok ? '✅ Corretto!' : '❌ Sbagliato! La risposta era: <em>' + q.opts[correct] + '</em>'}</strong><div class="qexp">${q.exp || ''}</div>`;
+            document.getElementById('qmnxt').style.display = 'flex';
+            state.progress.totalAnswers++; if (ok) { state.progress.totalCorrect++; addXP(10); } saveProgress();
+        }
+        function answerQM_vf(ans) {
+            if (state.qmAnswers[state.qmIdx] !== undefined) return;
+            const q = state.qmSet[state.qmIdx].data; const ok = ans === q.a;
+            state.qmAnswers[state.qmIdx] = ok;
+            document.querySelectorAll('.vf-btn').forEach(b => { b.disabled = true; if ((b.classList.contains('vf-v') && q.a) || (b.classList.contains('vf-f') && !q.a)) b.classList.add('selected'); });
+            const fb = document.getElementById('qmfb'); fb.classList.add('show', ok ? 'ok' : 'err');
+            fb.innerHTML = `<strong>${ok ? '✅ Corretto!' : '❌ Sbagliato! Era: ' + (q.a ? 'VERO' : 'FALSO')}</strong><div class="qexp">${q.exp}</div>`;
+            document.getElementById('qmnxt').style.display = 'flex';
+            state.progress.totalAnswers++; if (ok) { state.progress.totalCorrect++; addXP(10); } saveProgress();
+        }
+        function answerQM_d(btn, correct) {
+            if (state.qmAnswers[state.qmIdx] !== undefined) return;
+            const chosen = btn.textContent.trim(); const ok = chosen === correct;
+            state.qmAnswers[state.qmIdx] = ok;
+            document.querySelectorAll('.qopt').forEach(b => { b.disabled = true; if (b.textContent.trim() === correct) b.classList.add('ok'); if (b.textContent.trim() === chosen && !ok) b.classList.add('err'); });
+            const fb = document.getElementById('qmfb'); fb.classList.add('show', ok ? 'ok' : 'err');
+            fb.textContent = ok ? '✅ Corretto!' : '❌ Sbagliato. La risposta era: ' + correct;
+            document.getElementById('qmnxt').style.display = 'flex';
+            state.progress.totalAnswers++; if (ok) { state.progress.totalCorrect++; addXP(10); } saveProgress();
+        }
+        function nextQM() { state.qmIdx++; renderQuizM(); }
+        function finishQM() {
+            state.qmDone = true;
+            const ok = state.qmAnswers.filter(a => a === true).length, n = state.qmSet.length, pct = Math.round(ok / n * 100);
+            state.progress.qmPlays++; state.progress.qmAvg = Math.round((state.progress.qmAvg * (state.progress.qmPlays - 1) + pct) / state.progress.qmPlays);
+            state.progress.qmBest = Math.max(state.progress.qmBest, pct);
+            addXP(25); saveProgress(); checkAchievements(); renderQMResult(document.getElementById('qm-cont'));
+        }
+        function renderQMResult(c) {
+            const ok = state.qmAnswers.filter(a => a === true).length, n = state.qmSet.length, pct = Math.round(ok / n * 100);
+            c.innerHTML = `<div class="qres"><div class="qres-n">${pct}%</div><div class="qres-sub">${ok} risposte corrette su ${n}</div>
+<p style="color:var(--muted);margin-bottom:24px">${pct >= 80 ? '🎉 Preparazione eccellente!' : pct >= 60 ? '👍 Buono! Ripassa i punti deboli.' : '📖 Rileggi i riassunti e riprova!'}</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+  <button class="btn btn-p" onclick="initQuizM()">🔄 Nuovo misto</button>
+  <button class="btn btn-s" onclick="go('summaries')">📖 Ripassare</button>
+</div></div>`;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // FLASHCARDS
+        // ═══════════════════════════════════════════════════════════════════
+        let _fcTouchStartX = 0;
+        function initFlashcards() {
+            if (state.fcIdx === undefined) state.fcIdx = 0;
+            state.fcFlipped = false;
+            renderFlashcard();
+        }
+        function renderFlashcard() {
+            const c = document.getElementById('fc-cont');
+            const idx = state.fcIdx, n = FLASHCARDS.length, fc = FLASHCARDS[idx];
+            if (!state._fcSeen) state._fcSeen = new Set();
+            state._fcSeen.add(idx);
+            state.progress.fcStudied = state._fcSeen.size;
+            saveProgress(); checkAchievements();
+            c.innerHTML = `
+    <div class="fc-info">${idx + 1} / ${n} — clicca la scheda per girare</div>
+    <div class="fc${state.fcFlipped ? ' flipped' : ''}" id="fc-card" onclick="flipFC()"
+         ontouchstart="fcTouchStart(event)" ontouchend="fcTouchEnd(event)">
+      <div class="fc-inner">
+        <div class="fc-front"><div class="fc-hint">DOMANDA</div><div class="fc-text">${fc.f}</div></div>
+        <div class="fc-back"><div class="fc-hint">RISPOSTA</div><div class="fc-text">${fc.b}</div></div>
+      </div>
+    </div>
+    <div class="swipe-hint">← scorri o usa le frecce →</div>
+    <div class="fc-nav">
+      <button class="btn btn-s" onclick="prevFC()" ${idx === 0 ? 'disabled' : ''}>← Prec</button>
+      <span class="fc-prog">${idx + 1} / ${n}</span>
+      <button class="btn btn-p" onclick="nextFC()" ${idx === n - 1 ? 'disabled' : ''}>Succ →</button>
+    </div>`;
+        }
+        function flipFC() {
+            state.fcFlipped = !state.fcFlipped;
+            const card = document.getElementById('fc-card');
+            if (card) card.classList.toggle('flipped', state.fcFlipped);
+        }
+        function nextFC() { if (state.fcIdx < FLASHCARDS.length - 1) { state.fcIdx++; state.fcFlipped = false; renderFlashcard(); } }
+        function prevFC() { if (state.fcIdx > 0) { state.fcIdx--; state.fcFlipped = false; renderFlashcard(); } }
+        function fcTouchStart(e) { _fcTouchStartX = e.touches[0].clientX; }
+        function fcTouchEnd(e) {
+            const dx = e.changedTouches[0].clientX - _fcTouchStartX;
+            if (Math.abs(dx) > 50) { if (dx < 0) nextFC(); else prevFC(); }
+            else flipFC();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // CHARACTERS
+        // ═══════════════════════════════════════════════════════════════════
+        function renderChars() {
+            const f = state.charFilter || 'all';
+            const list = f === 'all' ? CHARACTERS : CHARACTERS.filter(c => c.side === f);
+            document.getElementById('char-grid').innerHTML = list.map(c => `
+    <div class="cc">
+      <span class="cc-ico">${c.ico}</span>
+      <div class="side-b ${c.side === 'asse' ? 'axis-b' : 'ally-b'}">${c.side === 'asse' ? 'Asse' : 'Alleati'}</div>
+      <div class="cc-name">${c.n}</div>
+      <div class="cc-role">${c.role}</div>
+      <div class="cc-desc">${c.desc}</div>
+    </div>`).join('');
+        }
+        function charFilter(f, btn) {
+            document.querySelectorAll('#s-characters .fb').forEach(b => b.classList.remove('on'));
+            if (btn) btn.classList.add('on');
+            state.charFilter = f; renderChars();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // MINDMAP
+        // ═══════════════════════════════════════════════════════════════════
+        const MM_NODES = [
+            { id: 'sgm', label: 'SGM\n1939–45', x: .5, y: .5, r: 38, color: '#d4af37', desc: 'Seconda Guerra Mondiale: il conflitto globale più devastante della storia. 70–85 milioni di morti.' },
+            { id: 'cause', label: 'Cause', x: .2, y: .18, r: 26, color: '#a78bfa', desc: 'Crisi del 1929, ascesa dei nazionalismi, fallimento della pace di Versailles, appeasement britannico-francese.' },
+            { id: 'blitz', label: 'Blitzkrieg', x: .78, y: .18, r: 24, color: '#f87171', desc: 'Guerra lampo: concentrazione di panzer e aerei per sfondare il fronte. Usato in Polonia, Francia, URSS.' },
+            { id: 'front_o', label: 'Fr. Orientale', x: .82, y: .5, r: 24, color: '#fb923c', desc: 'Barbarossa (giu 1941). Stalingrado (1942-43). Il fronte più sanguinoso: ~30 milioni di morti.' },
+            { id: 'front_oc', label: 'Fr. Occidentale', x: .18, y: .5, r: 24, color: '#60a5fa', desc: 'Conquista Francia (1940). Battaglia d\'Inghilterra. D-Day (6 giu 1944). Liberazione Europa.' },
+            { id: 'holo', label: 'Olocausto', x: .5, y: .18, r: 26, color: '#dc2626', desc: '~6 milioni di ebrei sterminati. Wannsee (gen 1942). Auschwitz, Treblinka, Sobibór. Processi di Norimberga.' },
+            { id: 'pac', label: 'Pacifico', x: .5, y: .82, r: 24, color: '#818cf8', desc: 'Pearl Harbor (7 dic 1941). Midway (giu 1942). Hiroshima e Nagasaki (ago 1945). Resa Giappone (2 set 1945).' },
+            { id: 'italia', label: 'Italia', x: .28, y: .78, r: 22, color: '#f472b6', desc: 'Entrata in guerra (10 giu 1940). Caduta Mussolini (25 lug 1943). 8 set 1943. RSI. Resistenza. 25 apr 1945.' },
+            { id: 'onu', label: 'ONU &\nBretton W.', x: .72, y: .78, r: 22, color: '#2dd4bf', desc: 'ONU (ott 1945): 5 membri permanenti con diritto di veto. Bretton Woods: dollaro = moneta mondiale, FMI, Banca Mondiale.' },
+            { id: 'asse', label: 'Asse', x: .12, y: .36, r: 20, color: '#fca5a5', desc: 'Germania (Hitler), Italia (Mussolini), Giappone (Hirohito). Patto Tripartito 1940.' },
+            { id: 'alleati', label: 'Alleati', x: .88, y: .36, r: 20, color: '#86efac', desc: 'Gran Bretagna (Churchill), USA (Roosevelt), URSS (Stalin), Francia Libera (De Gaulle).' },
+            { id: 'fine', label: 'Fine\nGuerra', x: .5, y: .93, r: 18, color: '#facc15', desc: 'Germania: resa 7 mag 1945. Giappone: resa 2 set 1945. Inizio Guerra Fredda USA-URSS.' },
+        ];
+        const MM_EDGES = [
+            ['sgm', 'cause'], ['sgm', 'blitz'], ['sgm', 'holo'], ['sgm', 'front_o'], ['sgm', 'front_oc'],
+            ['sgm', 'pac'], ['sgm', 'italia'], ['sgm', 'onu'], ['sgm', 'asse'], ['sgm', 'alleati'],
+            ['blitz', 'front_o'], ['blitz', 'front_oc'], ['asse', 'blitz'], ['alleati', 'front_oc'],
+            ['front_o', 'fine'], ['front_oc', 'fine'], ['pac', 'fine'], ['fine', 'onu'], ['italia', 'fine'],
+            ['cause', 'asse'], ['holo', 'fine'],
+        ];
+        let mmCanvas, mmCtx, mmW, mmH;
+        function initMindmap() {
+            mmCanvas = document.getElementById('mm-canvas');
+            mmCtx = mmCanvas.getContext('2d');
+            resizeMM(); drawMM();
+            mmCanvas.addEventListener('click', onMMClick);
+            mmCanvas.addEventListener('touchend', onMMTouch, { passive: true });
+            window.addEventListener('resize', () => { resizeMM(); drawMM(); });
+        }
+        function resizeMM() {
+            const dpr = window.devicePixelRatio || 1;
+            mmW = mmCanvas.offsetWidth || 800;
+            mmH = Math.max(420, window.innerWidth < 600 ? 340 : 520);
+            mmCanvas.style.height = mmH + 'px';
+            mmCanvas.width = mmW * dpr; mmCanvas.height = mmH * dpr;
+            mmCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        function mmNodePos(node) { return { x: node.x * mmW, y: node.y * mmH }; }
+        function drawMM() {
+            if (!mmCanvas) return;
+            const ctx = mmCtx;
+            const isDark = document.documentElement.dataset.theme !== 'light';
+            const bg = isDark ? '#14112a' : '#f3ede0';
+            const line = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)';
+            const txt = isDark ? '#f0e6c8' : '#1e160a';
+            ctx.clearRect(0, 0, mmW, mmH);
+            ctx.fillStyle = bg; ctx.fillRect(0, 0, mmW, mmH);
+            MM_EDGES.forEach(([a, b]) => {
+                const na = MM_NODES.find(n => n.id === a), nb = MM_NODES.find(n => n.id === b);
+                if (!na || !nb) return;
+                const pa = mmNodePos(na), pb = mmNodePos(nb);
+                ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y);
+                ctx.strokeStyle = line; ctx.lineWidth = 1.5; ctx.stroke();
+            });
+            MM_NODES.forEach(node => {
+                const { x, y } = mmNodePos(node); const r = node.r * (mmW / 800);
+                const grd = ctx.createRadialGradient(x, y, 0, x, y, r * 1.6);
+                grd.addColorStop(0, node.color + '44'); grd.addColorStop(1, 'transparent');
+                ctx.beginPath(); ctx.arc(x, y, r * 1.6, 0, Math.PI * 2); ctx.fillStyle = grd; ctx.fill();
+                ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fillStyle = node.color + '22'; ctx.strokeStyle = node.color; ctx.lineWidth = 2; ctx.fill(); ctx.stroke();
+                const lines = node.label.split('\n');
+                ctx.fillStyle = txt; ctx.font = `bold ${Math.max(9, r * 0.42)}px 'DM Sans',sans-serif`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                const lineH = r * 0.48;
+                lines.forEach((ln, i) => { ctx.fillText(ln, x, y + (i - (lines.length - 1) / 2) * lineH); });
+            });
+        }
+        function onMMClick(e) {
+            const rect = mmCanvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+            const hit = MM_NODES.find(n => { const p = mmNodePos(n); const r = n.r * (mmW / 800); return Math.hypot(p.x - mx, p.y - my) <= r; });
+            const info = document.getElementById('mm-info');
+            if (hit) {
+                document.getElementById('mm-info-t').textContent = hit.label.replace('\n', ' — ');
+                document.getElementById('mm-info-d').textContent = hit.desc;
+                info.classList.add('show');
+            } else { info.classList.remove('show'); }
+        }
+        function onMMTouch(e) { if (e.changedTouches.length) onMMClick({ clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY }); }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // PROGRESS
+        // ═══════════════════════════════════════════════════════════════════
+        function renderProgress() {
+            const p = state.progress;
+            const lv = getLevel(p.xp);
+            const nxLv = LEVELS[LEVELS.indexOf(lv) + 1] || lv;
+            const pct = lv === nxLv ? 100 : Math.round((p.xp - lv.min) / (nxLv.min - lv.min) * 100);
+            const total = p.totalAnswers || 1;
+            const acc = Math.round((p.totalCorrect || 0) / total * 100);
+            const mins = Math.round((p.studyTime || 0) / 60);
+            document.getElementById('pg-level').innerHTML = `
+    <div class="pg-level-card">
+      <div class="pg-level-ico">${lv.ico}</div>
+      <div class="pg-level-info">
+        <div class="pg-level-name">${lv.name}</div>
+        <div class="pg-level-xp">${p.xp} XP — ${pct}% al prossimo livello</div>
+        <div class="pg-xp-bar"><div class="pg-xp-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+            document.getElementById('pg-streak').innerHTML = `
+    <div class="streak-badge">
+      <span class="streak-fire">🔥</span>
+      <span class="streak-num">${p.streak || 0}</span>
+      <span class="streak-lbl">giorni consecutivi</span>
+    </div>`;
+            document.getElementById('pg-grid').innerHTML = [
+                { n: p.xp, l: 'XP Totali' },
+                { n: p.totalAnswers || 0, l: 'Risposte date' },
+                { n: acc + '%', l: 'Accuratezza' },
+                { n: p.qgPlays + p.qdPlays + p.qvfPlays + p.qmPlays, l: 'Quiz completati' },
+                { n: p.fcStudied || 0, l: 'Flashcard viste' },
+                { n: mins, l: 'Min. di studio' },
+            ].map(s => `<div class="pg-card"><div class="pg-n">${s.n}</div><div class="pg-l">${s.l}</div></div>`).join('');
+            document.getElementById('pg-bars').innerHTML = [
+                { l: 'Quiz Generale', v: p.qgBest || 0, avg: p.qgAvg || 0 },
+                { l: 'Quiz Date', v: p.qdBest || 0, avg: p.qdAvg || 0 },
+                { l: 'Vero/Falso', v: p.vfBest || 0, avg: p.qvfAvg || 0 },
+                { l: 'Quiz Misto', v: p.qmBest || 0, avg: p.qmAvg || 0 },
+            ].map(b => `<div class="pg-bar-wrap"><div class="pg-bar-lbl"><span>${b.l}</span><span>Miglior: ${b.v}% · Media: ${b.avg}%</span></div><div class="pg-bar"><div class="pg-fill" style="width:${b.v}%"></div></div></div>`).join('');
+            document.getElementById('ach-grid').innerHTML = ACHIEVEMENTS.map(a => {
+                const done = !!p.achievements[a.id];
+                const when = done ? new Date(p.achievements[a.id]).toLocaleDateString('it-IT') : '';
+                return `<div class="ach-card ${done ? 'unlocked' : 'locked'}">
+      <div class="ach-ico">${a.ico}</div>
+      <div><div class="ach-title">${a.title}</div><div class="ach-desc">${a.desc}</div>
+      ${done ? `<div class="ach-date">✅ Sbloccato il ${when} (+${a.xp} XP)</div>` : ''}</div>
+    </div>`;
+            }).join('');
+        }
+        function resetProgress() {
+            if (!confirm('Azzerare tutti i progressi? L\'operazione non è reversibile.')) return;
+            state.progress = defProg(); state._fcSeen = new Set(); saveProgress(); renderProgress();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // QUICK REVIEW MODAL
+        // ═══════════════════════════════════════════════════════════════════
+        function quickRev() {
+            document.getElementById('qr-list').innerHTML = QUICK_DATES.map(d => `
+    <div class="rev-item"><div class="rev-date">${d.d}</div><div class="rev-text">${d.e}</div></div>`).join('');
+            document.getElementById('qr-modal').classList.add('show');
+        }
+        function closeModal() { document.getElementById('qr-modal').classList.remove('show'); }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // GLOBAL SEARCH
+        // ═══════════════════════════════════════════════════════════════════
+        function buildSearchIndex() {
+            const idx = [];
+            EVENTS.forEach(e => idx.push({ type: 'Evento', title: e.t, date: e.d, snip: e.desc }));
+            CHARACTERS.forEach(c => idx.push({ type: 'Personaggio', title: c.n, date: c.role, snip: c.desc }));
+            FLASHCARDS.forEach(f => idx.push({ type: 'Flashcard', title: f.f, date: '', snip: f.b }));
+            QUIZ_G.forEach(q => idx.push({ type: 'Quiz', title: q.q, date: 'diff:' + q.diff, snip: q.exp || q.opts.join(' ') }));
+            return idx;
+        }
+        const SEARCH_IDX = buildSearchIndex();
+        function hl(txt, term) {
+            if (!term) return txt;
+            const re = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            return txt.replace(re, '<mark>$1</mark>');
+        }
+        function doSearch(raw) {
+            const term = raw.trim().toLowerCase();
+            const cat = document.getElementById('sr-cat').value;
+            const cont = document.getElementById('sr-res');
+            if (!term) { cont.innerHTML = '<div class="empty"><div class="empty-e">🔍</div>Inizia a digitare per cercare…</div>'; return; }
+            const hits = SEARCH_IDX.filter(item => {
+                if (cat !== 'all' && item.type !== cat) return false;
+                return (item.title + ' ' + item.snip + ' ' + item.date).toLowerCase().includes(term);
+            });
+            if (!hits.length) { cont.innerHTML = '<div class="empty"><div class="empty-e">😕</div>Nessun risultato per "<strong>' + raw + '</strong>"</div>'; return; }
+            cont.innerHTML = hits.slice(0, 40).map(h => `
+    <div class="sr-item">
+      <div class="sr-date">${h.type}${h.date ? ' · ' + h.date : ''}</div>
+      <div class="sr-title">${hl(h.title, raw)}</div>
+      <div class="sr-snip">${hl(h.snip.slice(0, 140), raw)}${h.snip.length > 140 ? '…' : ''}</div>
+    </div>`).join('');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // KEYBOARD SHORTCUTS
+        // ═══════════════════════════════════════════════════════════════════
+        document.addEventListener('keydown', e => {
+            if (document.getElementById('s-flashcards').classList.contains('on')) {
+                if (e.key === 'ArrowRight') nextFC();
+                if (e.key === 'ArrowLeft') prevFC();
+                if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipFC(); }
+            }
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ═══════════════════════════════════════════════════════════════════
+        // UTILITIES
+        // ═══════════════════════════════════════════════════════════════════
+        function shuffleArr(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // BOOT
+        // ═══════════════════════════════════════════════════════════════════
+        (function init() {
+            const today = new Date().toISOString().slice(0, 10);
+            if (state.progress.lastStudy !== today) {
+                const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+                state.progress.streak = state.progress.lastStudy === yesterday ? (state.progress.streak || 0) + 1 : 1;
+                state.progress.lastStudy = today;
+                saveProgress();
+            }
+            state._fcSeen = new Set();
+            renderHome();
+            showSum(0, document.querySelector('.stab'));
+        })();
+    </script>
+</body>
+
+</html>
