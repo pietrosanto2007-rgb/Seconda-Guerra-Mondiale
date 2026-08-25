@@ -670,52 +670,49 @@
   }
 
   async function startBarcodeScanner() {
-    const video = $('barcodeVideo');
     const fallback = $('barcodeFallback');
+    const video = $('barcodeVideo');
     fallback.style.display = 'none';
     $('scannerCaption').textContent = 'Richiesta accesso alla fotocamera…';
 
-    // Camera APIs require a secure context (HTTPS) or localhost.
+    // Camera access is restricted by browsers to secure contexts.
     if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
       fallback.style.display = 'block';
-      $('scannerCaption').textContent = "Apri l'app tramite HTTPS o localhost";
-      toast('La fotocamera richiede HTTPS (oppure localhost). Se hai aperto index.html direttamente, pubblicalo su un server sicuro.', 'error');
+      $('scannerCaption').textContent = 'Fotocamera: serve HTTPS o localhost';
+      toast('La fotocamera del browser funziona solo su HTTPS o localhost. Non aprire index.html con un doppio clic.', 'error');
       return;
     }
     if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
       fallback.style.display = 'block';
-      $('scannerCaption').textContent = 'Fotocamera non supportata dal browser';
-      toast("Questo browser non espone la fotocamera. Usa il barcode manuale o un'immagine.", 'error');
+      $('scannerCaption').textContent = 'API fotocamera non disponibile';
+      toast('Il browser non espone l’accesso alla fotocamera. Prova Safari/Chrome aggiornato oppure usa il fallback.', 'error');
       return;
     }
     if (!window.ZXingBrowser?.BrowserMultiFormatReader) {
       fallback.style.display = 'block';
-      $('scannerCaption').textContent = 'Scanner non caricato';
-      toast('Impossibile caricare il motore barcode. Controlla la connessione internet e ricarica.', 'error');
+      $('scannerCaption').textContent = 'Scanner barcode non caricato';
+      toast('Il motore barcode non è stato caricato. Controlla la connessione e ricarica la pagina.', 'error');
       return;
     }
 
     try {
-      // Explicitly request camera permission first so the browser can show its prompt.
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false
-      });
-      state.cameraStream = stream;
-      video.srcObject = stream;
-      video.muted = true;
-      video.playsInline = true;
-      await video.play();
+      const formats = [];
+      const BF = window.ZXing?.BarcodeFormat;
+      if (BF) {
+        ['EAN_13','EAN_8','UPC_A','UPC_E','CODE_128','CODE_39','ITF'].forEach(k => { if (BF[k] != null) formats.push(BF[k]); });
+      }
+      const hints = (window.ZXing?.DecodeHintType && formats.length) ? new Map([[window.ZXing.DecodeHintType.POSSIBLE_FORMATS, formats], [window.ZXing.DecodeHintType.TRY_HARDER, true]]) : undefined;
 
-      state.scanner = new ZXingBrowser.BrowserMultiFormatReader(undefined, {
-        delayBetweenScanAttempts: 150,
-        delayBetweenScanSuccess: 500
+      state.scanner = new ZXingBrowser.BrowserMultiFormatReader(hints, {
+        delayBetweenScanAttempts: 120,
+        delayBetweenScanSuccess: 400
       });
 
-      // Decode the already-authorized stream. BrowserMultiFormatReader covers the requested 1D formats.
-      state.scannerControls = await state.scanner.decodeFromStream(stream, video, (result, error) => {
+      // ZXing requests the camera itself here. This is the browser permission point.
+      state.scannerControls = await state.scanner.decodeFromVideoDevice(undefined, video, (result, error) => {
         if (result?.text) handleBarcode(result.text.trim());
       });
+
       $('scannerCaption').textContent = 'Inquadra il barcode';
     } catch (err) {
       console.error('Camera/scanner error:', err);
@@ -723,18 +720,19 @@
       fallback.style.display = 'block';
 
       const name = err?.name || '';
-      if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+      const detail = err?.message ? ` (${err.message})` : '';
+      if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'SecurityError') {
         $('scannerCaption').textContent = 'Permesso fotocamera negato';
-        toast('Accesso alla fotocamera negato. Abilitalo nelle impostazioni del browser e riprova.', 'error');
-      } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+        toast('Il browser ha negato la fotocamera. Controlla i permessi del sito e riprova.' + detail, 'error');
+      } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError' || name === 'OverconstrainedError') {
         $('scannerCaption').textContent = 'Nessuna fotocamera trovata';
-        toast('Non è stata trovata alcuna fotocamera. Puoi inserire il barcode manualmente.', 'error');
-      } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+        toast('Non è stata trovata una fotocamera utilizzabile.' + detail, 'error');
+      } else if (name === 'NotReadableError' || name === 'TrackStartError' || name === 'AbortError') {
         $('scannerCaption').textContent = 'Fotocamera occupata';
-        toast("La fotocamera è già utilizzata da un'altra app o scheda.", 'error');
+        toast('La fotocamera è occupata da un’altra app o scheda. Chiudila e riprova.' + detail, 'error');
       } else {
-        $('scannerCaption').textContent = 'Fotocamera non disponibile';
-        toast("Non è stato possibile aprire la fotocamera. Usa il fallback manuale o un'immagine.", 'error');
+        $('scannerCaption').textContent = 'Errore fotocamera';
+        toast('Errore nell’apertura della fotocamera: ' + (err?.message || name || 'errore sconosciuto'), 'error');
       }
     }
   }
@@ -761,8 +759,24 @@
   }
 
   async function startProductCamera(){
-    const v=$('productVideo'); if(!navigator.mediaDevices?.getUserMedia){return;}
-    try { state.productCameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:1706}},audio:false}); v.srcObject=state.productCameraStream; await v.play(); } catch(err){ toast('Fotocamera non disponibile per la foto. Puoi usare la galleria.','error'); }
+    const v=$('productVideo');
+    if(!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+      toast('Per scattare foto serve HTTPS o localhost. Puoi comunque scegliere una foto dalla galleria.', 'error');
+      return;
+    }
+    if(!navigator.mediaDevices?.getUserMedia) {
+      toast('Il browser non supporta l’accesso alla fotocamera. Usa la galleria.', 'error');
+      return;
+    }
+    try {
+      state.productCameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:1706}},audio:false});
+      v.srcObject=state.productCameraStream;
+      await v.play();
+    } catch(err){
+      const name=err?.name||'';
+      const msg = name==='NotAllowedError' ? 'Permesso fotocamera negato. Abilitalo nelle impostazioni del browser.' : (err?.message || 'Impossibile aprire la fotocamera.');
+      toast(msg+' Puoi usare la galleria.', 'error');
+    }
   }
   function stopProductCamera(){ try{state.productCameraStream?.getTracks().forEach(t=>t.stop());}catch{} state.productCameraStream=null; const v=$('productVideo'); if(v){v.pause();v.srcObject=null;} }
 
