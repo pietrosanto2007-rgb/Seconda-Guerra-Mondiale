@@ -402,6 +402,9 @@
     cameraStream: null,
     scanner: null,
     scannerControls: null,
+    barcodeDetector: null,
+    barcodeScanRunning: false,
+    barcodeScanTimer: null,
     productCameraStream: null,
     currentDetailId: null,
     currentEditId: null,
@@ -669,67 +672,122 @@
     try { const C=window.AudioContext||window.webkitAudioContext; if(!C)return; const c=new C(),o=c.createOscillator(),g=c.createGain(); o.type='sine';o.frequency.value=900;g.gain.value=.055;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.08); } catch {}
   }
 
+  const BARCODE_FORMATS = ['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf'];
+
+  async function tuneCameraTrack(stream) {
+    try {
+      const track = stream?.getVideoTracks?.()[0];
+      if (!track) return;
+      const caps = track.getCapabilities?.() || {};
+      const advanced = {};
+      if (caps.focusMode && caps.focusMode.includes('continuous')) advanced.focusMode = 'continuous';
+      if (caps.exposureMode && caps.exposureMode.includes('continuous')) advanced.exposureMode = 'continuous';
+      if (caps.zoom && typeof caps.zoom.min === 'number' && typeof caps.zoom.max === 'number') {
+        const preferred = Math.min(caps.max || caps.zoom.max, Math.max(caps.zoom.min, 1.15));
+        advanced.zoom = preferred;
+      }
+      if (Object.keys(advanced).length) await track.applyConstraints({ advanced: [advanced] });
+    } catch {}
+  }
+
   async function startBarcodeScanner() {
     const fallback = $('barcodeFallback');
     const video = $('barcodeVideo');
     fallback.style.display = 'none';
     $('scannerCaption').textContent = 'Richiesta accesso alla fotocamera…';
+    stopBarcodeScanner();
 
-    // Camera access is restricted by browsers to secure contexts.
     if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
       fallback.style.display = 'block';
       $('scannerCaption').textContent = 'Fotocamera: serve HTTPS o localhost';
-      toast('La fotocamera del browser funziona solo su HTTPS o localhost. Non aprire index.html con un doppio clic.', 'error');
+      toast('La fotocamera richiede HTTPS o localhost.', 'error');
       return;
     }
-    if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+    if (!navigator.mediaDevices?.getUserMedia) {
       fallback.style.display = 'block';
       $('scannerCaption').textContent = 'API fotocamera non disponibile';
-      toast('Il browser non espone l’accesso alla fotocamera. Prova Safari/Chrome aggiornato oppure usa il fallback.', 'error');
-      return;
-    }
-    if (!window.ZXingBrowser?.BrowserMultiFormatReader) {
-      fallback.style.display = 'block';
-      $('scannerCaption').textContent = 'Scanner barcode non caricato';
-      toast('Il motore barcode non è stato caricato. Controlla la connessione e ricarica la pagina.', 'error');
+      toast('Il browser non espone l’accesso alla fotocamera. Usa il fallback.', 'error');
       return;
     }
 
     try {
+      // Prima proviamo il percorso nativo: è generalmente molto più veloce di ZXing.
+      if ('BarcodeDetector' in window) {
+        let supported = BARCODE_FORMATS;
+        try {
+          const nativeSupported = await BarcodeDetector.getSupportedFormats();
+          supported = BARCODE_FORMATS.filter(f => nativeSupported.includes(f));
+        } catch {}
+        if (supported.length) {
+          state.barcodeDetector = new BarcodeDetector({ formats: supported });
+          const constraints = {
+            audio: false,
+            video: {
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1920, min: 1280 },
+              height: { ideal: 1080, min: 720 },
+              frameRate: { ideal: 30, min: 24 }
+            }
+          };
+          state.cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+          video.srcObject = state.cameraStream;
+          await video.play();
+          await tuneCameraTrack(state.cameraStream);
+          state.barcodeScanRunning = true;
+          $('scannerCaption').textContent = 'Inquadra il barcode';
+
+          const scanNative = async () => {
+            if (!state.barcodeScanRunning || !state.barcodeDetector || !video.videoWidth) return;
+            try {
+              const codes = await state.barcodeDetector.detect(video);
+              if (codes?.length) {
+                const text = (codes[0].rawValue || '').trim();
+                if (text) { handleBarcode(text); return; }
+              }
+            } catch {}
+            state.barcodeScanTimer = setTimeout(scanNative, 35);
+          };
+          scanNative();
+          return;
+        }
+      }
+
+      // Fallback ZXing per browser privi di BarcodeDetector.
+      if (!window.ZXingBrowser?.BrowserMultiFormatReader) {
+        fallback.style.display = 'block';
+        $('scannerCaption').textContent = 'Scanner barcode non caricato';
+        toast('Il motore barcode non è stato caricato. Controlla la connessione.', 'error');
+        return;
+      }
       const formats = [];
       const BF = window.ZXing?.BarcodeFormat;
-      if (BF) {
-        ['EAN_13','EAN_8','UPC_A','UPC_E','CODE_128','CODE_39','ITF'].forEach(k => { if (BF[k] != null) formats.push(BF[k]); });
-      }
-      const hints = (window.ZXing?.DecodeHintType && formats.length) ? new Map([[window.ZXing.DecodeHintType.POSSIBLE_FORMATS, formats], [window.ZXing.DecodeHintType.TRY_HARDER, true]]) : undefined;
-
+      if (BF) ['EAN_13','EAN_8','UPC_A','UPC_E','CODE_128','CODE_39','ITF'].forEach(k => { if (BF[k] != null) formats.push(BF[k]); });
+      const hints = (window.ZXing?.DecodeHintType && formats.length)
+        ? new Map([[window.ZXing.DecodeHintType.POSSIBLE_FORMATS, formats]]) : undefined;
       state.scanner = new ZXingBrowser.BrowserMultiFormatReader(hints, {
-        delayBetweenScanAttempts: 120,
-        delayBetweenScanSuccess: 400
+        delayBetweenScanAttempts: 20,
+        delayBetweenScanSuccess: 120
       });
-
-      // ZXing requests the camera itself here. This is the browser permission point.
-      state.scannerControls = await state.scanner.decodeFromVideoDevice(undefined, video, (result, error) => {
+      state.scannerControls = await state.scanner.decodeFromVideoDevice(undefined, video, (result) => {
         if (result?.text) handleBarcode(result.text.trim());
       });
-
+      await new Promise(r => setTimeout(r, 80));
+      if (video.srcObject) await tuneCameraTrack(video.srcObject);
       $('scannerCaption').textContent = 'Inquadra il barcode';
     } catch (err) {
       console.error('Camera/scanner error:', err);
       stopBarcodeScanner();
       fallback.style.display = 'block';
-
       const name = err?.name || '';
-      const detail = err?.message ? ` (${err.message})` : '';
       if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'SecurityError') {
         $('scannerCaption').textContent = 'Permesso fotocamera negato';
-        toast('Il browser ha negato la fotocamera. Controlla i permessi del sito e riprova.' + detail, 'error');
-      } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError' || name === 'OverconstrainedError') {
+        toast('Il browser ha negato la fotocamera. Abilita il permesso del sito e riprova.', 'error');
+      } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
         $('scannerCaption').textContent = 'Nessuna fotocamera trovata';
-        toast('Non è stata trovata una fotocamera utilizzabile.' + detail, 'error');
+        toast('Non è stata trovata una fotocamera utilizzabile.', 'error');
       } else if (name === 'NotReadableError' || name === 'TrackStartError' || name === 'AbortError') {
         $('scannerCaption').textContent = 'Fotocamera occupata';
-        toast('La fotocamera è occupata da un’altra app o scheda. Chiudila e riprova.' + detail, 'error');
+        toast('La fotocamera è occupata da un’altra app o scheda.', 'error');
       } else {
         $('scannerCaption').textContent = 'Errore fotocamera';
         toast('Errore nell’apertura della fotocamera: ' + (err?.message || name || 'errore sconosciuto'), 'error');
@@ -737,7 +795,18 @@
     }
   }
 
-  function stopBarcodeScanner(){ try{state.scannerControls?.stop?.();}catch{} try{state.scanner?.reset?.();}catch{} state.scannerControls=null; state.scanner=null; try{state.cameraStream?.getTracks().forEach(t=>t.stop());}catch{} state.cameraStream=null; const v=$('barcodeVideo'); if(v){v.pause(); if(v.srcObject){try{v.srcObject.getTracks().forEach(t=>t.stop());}catch{} v.srcObject=null;}} }
+  function stopBarcodeScanner(){
+    state.barcodeScanRunning = false;
+    if (state.barcodeScanTimer) { clearTimeout(state.barcodeScanTimer); state.barcodeScanTimer = null; }
+    state.barcodeDetector = null;
+    try { state.scannerControls?.stop?.(); } catch {}
+    try { state.scanner?.reset?.(); } catch {}
+    state.scannerControls = null; state.scanner = null;
+    try { state.cameraStream?.getTracks?.().forEach(t=>t.stop()); } catch {}
+    state.cameraStream = null;
+    const v=$('barcodeVideo');
+    if(v){v.pause(); if(v.srcObject){try{v.srcObject.getTracks().forEach(t=>t.stop());}catch{} v.srcObject=null;}}
+  }
 
   async function handleBarcode(code) {
     if(!validBarcode(code) || state.barcode) return;
